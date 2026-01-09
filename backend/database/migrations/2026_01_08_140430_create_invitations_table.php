@@ -45,7 +45,6 @@ return new class extends Migration
 
             // Cáu hình thêm
             $table->string('music_url')->nullable();  // Nhạc nền
-            $table->text('message')->nullable();  // Lời nhắm thêm
             $table->string('qr_code_bank')->nullable(); // QR mừng cưới
             $table->boolean('is_published')->default(true); // Ẩn hiện thiệp
             $table->timestamps();

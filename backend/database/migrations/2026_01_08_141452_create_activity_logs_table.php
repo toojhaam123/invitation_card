@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('invitation_id')->constrained()->cascadeOnDelete();
+
+            $table->string('ip_address')->nullable();
+            $table->text('user_agent')->nullable(); // Lưu thông tin trình duyệt và thiết bị
+            $table->timestamp('viewed_at')->useCurrent();  // Thời điểm xem
             $table->timestamps();
         });
     }

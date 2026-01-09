@@ -17,6 +17,7 @@ class ActivityLog extends Model
         'viewed_at'
     ];
 
+    // Ép kiểu viewed_at về kiểu thời gian 
     protected $casts = [
         'viewed_at' => 'datetime',
     ];

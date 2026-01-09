@@ -30,13 +30,12 @@ class Invitation extends Model
         'cover_image',
         'album_image',
         'music_url',
-        'message',
         'qr_code_bank',
         'is_published',
     ];
 
     // Ép kiểu dữ liệu casting cho album ảnh phải là Array 
-    protected $cast = [
+    protected $casts = [
         'album_image' => 'array',
         'event_date' => 'datetime',
         'is_published' => 'boolean',
@@ -52,5 +51,12 @@ class Invitation extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    // Lấy lời chút 
+    public function guestbooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        // Sắp xếp lời chút mới nhất lên đâud
+        return $this->hasMany(Guestbook::class)->latest();
     }
 }
