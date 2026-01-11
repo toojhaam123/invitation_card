@@ -25,10 +25,8 @@ class InvitationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Bắt buộc phải là số và tồn tại trong bảng users 
-            'user_id' => 'required|exists:users,id',
             // Bắt buộc, không được trùng trong bảng invitations
-            'slug' => 'required|string|unique:invitations,slug|max:255',
+            'slug' => 'nullable|string|unique:invitations,slug|max:255',
 
             'guest_name'     => 'nullable|string|max:255',
             'groom_name'     => 'required|string|max:255',
@@ -57,7 +55,6 @@ class InvitationRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_id.exists'      => 'Người dùng không tồn tại.',
             'slug.unique'         => 'Đường dẫn (slug) này đã được sử dụng, vui lòng chọn cái khác.',
             'groom_name.required' => 'Vui lòng nhập tên chú rể.',
             'bride_name.required' => 'Vui lòng nhập tên cô dâu.',

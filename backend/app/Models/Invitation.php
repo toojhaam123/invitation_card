@@ -41,6 +41,12 @@ class Invitation extends Model
         'is_published' => 'boolean',
     ];
 
+    // Lấy title của của thiệp
+    public function getTitleAttribute()
+    {
+        return "{$this->groom_name} & {$this->bride_name}";
+    }
+
     // Thiệp mời thuộc về người dùng nào 
     public function user(): BelongsTo
     {
@@ -54,7 +60,7 @@ class Invitation extends Model
     }
 
     // Lấy lời chút 
-    public function guestbooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function guestbooks()
     {
         // Sắp xếp lời chút mới nhất lên đâud
         return $this->hasMany(Guestbook::class)->latest();
