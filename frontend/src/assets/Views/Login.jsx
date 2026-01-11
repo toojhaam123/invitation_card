@@ -1,0 +1,60 @@
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { publicApi } from "../api/axios";
+
+const Login = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await publicApi.post("/login", { email, password });
+      // LƯU TOKEN VÀO LOCALSTORAGE
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      navigate("/"); // Về trang chủ quản lý thiệp
+      window.location.reload(); // Reload để privateApi cập nhật token mới
+    } catch (error) {
+      alert("Sai tài khoản hoặc mật khẩu!", error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
+        <h2 className="text-3xl font-bold text-[#c94b6a] text-center mb-6">
+          Đăng nhập
+        </h2>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-3 border rounded-lg"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Mật khẩu"
+            className="w-full p-3 border rounded-lg"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button className="w-full mb-8 bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]">
+            Đăng nhập
+          </button>
+          <Link to="/register" className="mt-10">
+            Đã có tài khoản
+          </Link>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

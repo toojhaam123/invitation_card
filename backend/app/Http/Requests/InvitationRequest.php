@@ -44,7 +44,7 @@ class InvitationRequest extends FormRequest
             'map_iframe'     => 'nullable|string',
 
             // Kiểm tra file ảnh (nếu bạn gửi file trực tiếp) hoặc string (nếu gửi link)
-            'cover_image'    => 'nullable|string',
+            'cover_image'    => 'nullable|image|mimes:jpg,png,gift|max:4096',
             'album_image'    => 'nullable|array', // Vì mình cast nó là array trong Model
 
             'music_url'      => 'nullable|url',
