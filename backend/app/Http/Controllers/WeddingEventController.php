@@ -18,7 +18,7 @@ class WeddingEventController extends Controller
         // Lấy Id user người dùng hiện tại 
         $userId = $request->user()->id;
 
-        $invitation = WeddingEvent::where('id', $userId)->latest()->get();
+        $invitation = WeddingEvent::where('user_id', $userId)->latest()->get();
 
         if (!$invitation) {
             return response()->json([
@@ -33,7 +33,7 @@ class WeddingEventController extends Controller
         ]);
     }
 
-    // Hàm tạo mới thiệp mời 
+    // Hàm tạo mới hoặc cập nhật sự kiện
     public function storeOrUpdate(EventRequest $request)
     {
         try {
@@ -50,7 +50,7 @@ class WeddingEventController extends Controller
 
             // Xử lý tạo slug duy nhất 
             if (!$weddingEvent) {
-                $baseSlug = Str::slug($request->groon_name . '-' . $request->bride_name ?: 'dam-cuoi');
+                $baseSlug = Str::slug($request->groom_name . '-' . $request->bride_name ?: 'dam-cuoi');
                 $slug = $baseSlug;
                 $count = 1;
                 while (WeddingEvent::where('slug', $slug)->exists()) {
