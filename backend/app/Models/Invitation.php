@@ -10,53 +10,32 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Invitation extends Model
 {
     use HasFactory;
-
     protected $fillable = [
-        'user_id',
-        'slug',
+        'wedding_event_id',
         'guest_name',
-        'groom_name',
-        'bride_name',
-        'phone_contacts',
-        'groom_father',
-        'groom_mother',
-        'bride_father',
-        'bride_mother',
-        'event_date',
-        'lunar_date',
-        'location_type',
-        'address',
-        'map_iframe',
-        'cover_image',
-        'album_image',
-        'music_url',
-        'qr_code_bank',
-        'is_published',
+        'slug',
+        'avatar'
     ];
 
-    // Ép kiểu dữ liệu casting cho album ảnh phải là Array 
-    protected $casts = [
-        'album_image' => 'array',
-        'event_date' => 'datetime',
-        'is_published' => 'boolean',
-    ];
-
-    // Lấy title của của thiệp
-    public function getTitleAttribute()
+    /**
+     * Một thiệp mời thuộc về một sự kiện đám cưới
+     */
+    public function weddingEvent(): BelongsTo
     {
-        return "{$this->groom_name} & {$this->bride_name}";
-    }
-
-    // Thiệp mời thuộc về người dùng nào 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
+        // Laravel sẽ tự tìm cột wedding_event_id để nối với bảng wedding_events
+        return $this->belongsTo(WeddingEvent::class);
     }
 
     // Một thiệp mời có nhiều lượt truy cập 
     public function logs(): HasMany
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    // Lấy title của của thiệp
+    public function getTitleAttribute()
+    {
+        return "{$this->groom_name} & {$this->bride_name}";
     }
 
     // Lấy lời chút 

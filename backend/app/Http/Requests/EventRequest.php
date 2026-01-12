@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class InvitationRequest extends FormRequest
+class EventRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,7 +28,6 @@ class InvitationRequest extends FormRequest
             // Bắt buộc, không được trùng trong bảng invitations
             'slug' => 'nullable|string|unique:invitations,slug|max:255',
 
-            'guest_name'     => 'nullable|string|max:255',
             'groom_name'     => 'required|string|max:255',
             'bride_name'     => 'required|string|max:255',
             'phone_contacts' => 'nullable|string|max:20',

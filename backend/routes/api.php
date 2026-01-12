@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\GuestbookController;
+use App\Http\Controllers\WeddingEventController;
 
 Route::prefix('v1')->group(function () {
     // Đăng ký tài khoản người dùng
@@ -27,6 +29,10 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
         Route::post('/logout', [AuthController::class, 'logout']);
+
+        // Quản lý sự kiện 
+        Route::post('/events', [WeddingEventController::class, 'storeOrUpdate']);
+        Route::get('/events', [WeddingEventController::class, 'index']);          // Xem danh sách thiệp của tôi
 
         // Quản lý thiệp mời
         Route::post('/invitations', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi

@@ -1,0 +1,119 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\EventRequest;
+use App\Models\ActivityLog;
+use App\Models\WeddingEvent;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use function Illuminate\Support\now;
+
+class WeddingEventController extends Controller
+{
+    // Lấy toàn bộ sự kiện 
+    public function index(Request $request)
+    {
+        // Lấy Id user người dùng hiện tại 
+        $userId = $request->user()->id;
+
+        $invitation = WeddingEvent::where('id', $userId)->latest()->get();
+
+        if (!$invitation) {
+            return response()->json([
+                'success' => false,
+                'message' => "Không có thiệp nào!",
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $invitation,
+        ]);
+    }
+
+    // Hàm tạo mới thiệp mời 
+    public function storeOrUpdate(EventRequest $request)
+    {
+        try {
+            // Lấy user id từ request
+            $user = $request->user();
+            $userId = $user->id;
+            $wId = $request->input('id');
+
+            // Tìm sự cũ để lấy thông tin ảnh cũ
+            $weddingEvent = WeddingEvent::where('id', $wId)->where('user_id', $userId)->first();
+
+            $data = $request->validated();
+            $data['user_id'] = $userId;
+
+            // Xử lý tạo slug duy nhất 
+            if (!$weddingEvent) {
+                $baseSlug = Str::slug($request->groon_name . '-' . $request->bride_name ?: 'dam-cuoi');
+                $slug = $baseSlug;
+                $count = 1;
+                while (WeddingEvent::where('slug', $slug)->exists()) {
+                    $slug = $baseSlug . "_" . $count;
+                    $count++;
+                }
+                $data['slug'] = $slug;
+            }
+
+            // Xử lý Cover Image 
+            if ($request->hasFile('cover_image')) {
+                if ($weddingEvent && $weddingEvent->cover_image) {
+                    Storage::disk('public')->delete('weddingevents/covers/' . $weddingEvent->cover_image);
+                }
+                $file = $request->file('cover_image');
+                $fileName = time() . '_cv_' . $file->getClientOriginalName();
+                $file->storeAs('weddingevents/covers', $fileName, 'public');
+                $data['cover_image'] = $fileName;
+            }
+
+            // Xử lý ảnh QR code
+            if ($request->hasFile('qr_code_bank')) {
+                if ($weddingEvent && $weddingEvent->qr_code_bank) {
+                    Storage::disk('public')->delete('weddingevents/qrcode/' . $weddingEvent->qr_code_bank);
+                }
+                $file = $request->file('qr_code_bank');
+                $fileName = time() . '_qr_' . $file->getClientOriginalName();
+                $file->storeAs('weddingevents/qrcode', $fileName, 'public');
+                $data['qr_code_bank'] = $fileName;
+            }
+
+            // Xử lý Album (Array)
+            if ($request->hasFile('album_image')) {
+                if ($weddingEvent && $weddingEvent->album_image) {
+                    foreach ($weddingEvent->album_image as $oldImage) {
+                        Storage::disk('public')->delete('invitation/albums/' . $oldImage);
+                    }
+                }
+                $albumPath = [];
+                foreach ($request->file('album_image') as $image) {
+                    $fileName = time() . '_alb_' . $image->getClientOriginalName();
+                    $image->storeAs('weddingevents/albums', $fileName, 'public');
+                    $albumPath[] = $fileName;
+                }
+                $data['album_image'] = $albumPath;
+            }
+
+            // Lưu vào database
+            $result = WeddingEvent::updateOrCreate(
+                ['id' => $wId, 'user_id' => $userId],
+                $data
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' =>  $weddingEvent ? 'Cập nhập sự kiện thành công!' : 'Tạo sự kiện thành công!',
+                'data' => $result,
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+}
