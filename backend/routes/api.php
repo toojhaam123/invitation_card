@@ -15,8 +15,8 @@ Route::prefix('v1')->group(function () {
     // Login
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Route cho khách xem thiệp
-    Route::get('/invitations/{slug}', [InvitationController::class, 'show']);
+    // Route cho khách xem chi tiết thiệp mời
+    Route::get('/invitations/{weddingSlug}/{guestNameSlug}', [InvitationController::class, 'show']);
 
     // Route thêm lời chúc của khách 
     Route::post('/guestbook', [GuestbookController::class, 'store'])
@@ -35,8 +35,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/events', [WeddingEventController::class, 'index']);          // Xem danh sách thiệp của tôi
 
         // Quản lý thiệp mời
-        Route::post('/invitations', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
-        Route::get('/invitations', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
+        Route::post('/{weddingSlug}/invitations', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
+        Route::get('/{weddingSlug}/invitations', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
 
         // Xem lịch sử truy cập của thiệp
         Route::get('/invitations/{id}/logs', [ActivityLogController::class, 'getLogsByInvitation']);

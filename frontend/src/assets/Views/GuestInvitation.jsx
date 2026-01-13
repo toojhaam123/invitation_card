@@ -6,10 +6,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 const GuestInvitation = () => {
-  const { slug } = useParams();
+  const { weddingSlug, guestNameSlug } = useParams();
   const [data, setData] = useState(null);
   const [daysLeft, setDaysLeft] = useState(0);
   const [loading, setLoading] = useState(true);
+  console.log("weddingSlug: ", weddingSlug);
+  console.log("guestNameSlug: ", guestNameSlug);
 
   const calculateCountdown = (date) => {
     const diff = new Date(date) - new Date();
@@ -19,9 +21,12 @@ const GuestInvitation = () => {
   useEffect(() => {
     const fetchInvitation = async () => {
       try {
-        const res = await publicApi.get(`invitations/${slug}`);
+        const res = await publicApi.get(
+          `invitations/${weddingSlug}/${guestNameSlug}`
+        );
         setData(res.data.data);
         calculateCountdown(res.data.data?.event_date);
+        console.log("Chi tiết thiệp: ", res.data.data);
       } catch (error) {
         console.error("Không tìm thấy thiệp", error);
       } finally {
@@ -29,7 +34,7 @@ const GuestInvitation = () => {
       }
     };
     fetchInvitation();
-  }, [slug]);
+  }, [weddingSlug, guestNameSlug]);
 
   if (loading) {
     return (
@@ -164,24 +169,26 @@ const GuestInvitation = () => {
           </div>
 
           {/* Countdown Section */}
-          <div className="text-center space-y-4 pt-10">
-            <h3 className="text-gray-400 uppercase tracking-[0.3em] text-xs font-bold">
-              Ngày trọng đại còn
-            </h3>
-            <div className="flex justify-center items-center gap-6">
-              <div className="bg-white w-24 h-24 rounded-2xl flex flex-col items-center justify-center shadow-lg border border-pink-100">
-                <span className="text-4xl font-bold text-[#c94b6a]">
-                  {daysLeft}
-                </span>
-                <span className="text-[10px] text-gray-400 uppercase">
-                  Ngày
-                </span>
+          {!isNaN && (
+            <div className="text-center space-y-4 pt-10">
+              <h3 className="text-gray-400 uppercase tracking-[0.3em] text-xs font-bold">
+                Ngày trọng đại còn
+              </h3>
+              <div className="flex justify-center items-center gap-6">
+                <div className="bg-white w-24 h-24 rounded-2xl flex flex-col items-center justify-center shadow-lg border border-pink-100">
+                  <span className="text-4xl font-bold text-[#c94b6a]">
+                    {daysLeft}
+                  </span>
+                  <span className="text-[10px] text-gray-400 uppercase">
+                    Ngày
+                  </span>
+                </div>
               </div>
+              <p className="text-pink-400 font-serif italic pt-4">
+                Chúng tôi đang chờ đón bạn!
+              </p>
             </div>
-            <p className="text-pink-400 font-serif italic pt-4">
-              Chúng tôi đang chờ đón bạn!
-            </p>
-          </div>
+          )}
         </section>
 
         {/* 4. MAP SECTION (Nếu có) */}

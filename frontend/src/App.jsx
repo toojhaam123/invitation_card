@@ -4,22 +4,34 @@ import GuestInvitation from "./assets/Views/GuestInvitation";
 import Home from "./assets/components/Home";
 import Login from "./assets/Views/Login";
 import Register from "./assets/Views/Register";
-import CreateInvitation from "./assets/Views/CreatInvitations";
+import EventLis from "./assets/Views/InvitationList";
+import CreateEvent from "./assets/Views/AddWeddingEvent";
+import InvitationList from "./assets/Views/InvitationList";
+import AddInvitation from "./assets/Views/AddInvitation";
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login></Login>}></Route>
-      <Route path="/register" element={<Register></Register>}></Route>
-      {/* Route tạo thiệp */}
-      <Route
-        path="/create"
-        element={<CreateInvitation></CreateInvitation>}
-      ></Route>
-      {/* Xem chi tiết thiệt */}
-      <Route path=":slug" element={<GuestInvitation></GuestInvitation>}></Route>
-      {/* Trang 404 */}
-      <Route path="/" element={<Home></Home>}></Route>
-    </Routes>
+    <div className="app-container min-h-screen">
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<Home />} />
+        {/* Tạo sự kiện  */}
+        <Route path="/create-event" element={<CreateEvent />} />
+
+        {/* Tạo thiệp mới và danh sách các thiệp mời */}
+        <Route
+          path="/:weddingSlug/create-invitation"
+          element={<AddInvitation />}
+        />
+        {/* Xem chi tiết thiệp mời  */}
+        <Route
+          path="/:weddingSlug/:guestNameSlug"
+          element={<GuestInvitation />}
+        ></Route>
+        {/* Danh sách các thiệp */}
+        <Route path="/:weddingSlug" element={<InvitationList />} />
+      </Routes>
+    </div>
   );
 }
 

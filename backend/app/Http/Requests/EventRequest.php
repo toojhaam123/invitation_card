@@ -26,7 +26,7 @@ class EventRequest extends FormRequest
     {
         return [
             // Bắt buộc, không được trùng trong bảng invitations
-            'slug' => 'nullable|string|unique:invitations,slug|max:255',
+            'slug' => 'string|unique:wedding_events,slug|max:255',
 
             'groom_name'     => 'required|string|max:255',
             'bride_name'     => 'required|string|max:255',

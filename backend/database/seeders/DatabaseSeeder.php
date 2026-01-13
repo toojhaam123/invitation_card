@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
         // 1. Tạo 2 User
         $user1 = User::create([
             'name' => 'toojhaam',
-            'email' => 'tung@example.com',
+            'email' => 'toojhaam123@gmail.com',
             'password' => Hash::make('123456'),
         ]);
 
         $user2 = User::create([
             'name' => 'sungdoi',
-            'email' => 'doi@example.com',
+            'email' => 'doi@gmail.com',
             'password' => Hash::make('123456'),
         ]);
 
@@ -42,17 +42,19 @@ class DatabaseSeeder extends Seeder
         // 3. Tạo 2 Thiệp mời cho 2 khách khác nhau thuộc sự kiện trên
         // Thiệp 1: Cho Anh Tuấn
         $invite1 = Invitation::create([
-            'wedding_event_id' => $weddingEvent->id,
-            'guest_name' => 'Anh Tuấn',
-            'slug' => 'dam-cuoi-tung-doi-anh-tuan',
+            'user_id' => $user1->id,
+            'wedding_event_slug' => $weddingEvent->slug,
+            'guest_name' => 'Hạng A Tùng',
+            'slug' => 'hang-a-tung',
             'avatar' => null,
         ]);
 
         // Thiệp 2: Cho Chị Hoa
         $invite2 = Invitation::create([
-            'wedding_event_id' => $weddingEvent->id,
-            'guest_name' => 'Chị Hoa',
-            'slug' => 'dam-cuoi-tung-doi-chi-hoa',
+            'user_id' => $user1->id,
+            'wedding_event_slug' => $weddingEvent->slug,
+            'guest_name' => 'Sùng Thị Đới',
+            'slug' => 'sung-thi-doi',
             'avatar' => null,
         ]);
 

@@ -11,7 +11,8 @@ class Invitation extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'wedding_event_id',
+        'user_id',
+        'wedding_event_slug',
         'guest_name',
         'slug',
         'avatar'
@@ -23,7 +24,7 @@ class Invitation extends Model
     public function weddingEvent(): BelongsTo
     {
         // Laravel sẽ tự tìm cột wedding_event_id để nối với bảng wedding_events
-        return $this->belongsTo(WeddingEvent::class);
+        return $this->belongsTo(WeddingEvent::class, 'wedding_event_slug', 'slug');
     }
 
     // Một thiệp mời có nhiều lượt truy cập 
