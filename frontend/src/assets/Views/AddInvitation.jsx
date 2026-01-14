@@ -33,7 +33,7 @@ const AddInvitation = ({ onInviteCreated }) => {
     if (avatar) data.append("avatar", avatar);
 
     try {
-      await privateApi.post(`/${weddingSlug}/invitations`, data, {
+      await privateApi.post(`event/invitations/${weddingSlug}`, data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

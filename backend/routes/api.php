@@ -35,8 +35,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/events', [WeddingEventController::class, 'index']);          // Xem danh sách thiệp của tôi
 
         // Quản lý thiệp mời
-        Route::post('/{weddingSlug}/invitations', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
-        Route::get('/{weddingSlug}/invitations', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
+        Route::post('event/invitations/{weddingSlug}', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
+        Route::get('event/invitations/{weddingSlug}', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
 
         // Xem lịch sử truy cập của thiệp
         Route::get('/invitations/{id}/logs', [ActivityLogController::class, 'getLogsByInvitation']);

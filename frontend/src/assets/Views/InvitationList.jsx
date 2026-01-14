@@ -19,11 +19,11 @@ const InvitationList = () => {
   useEffect(() => {
     const fetchInvitations = async () => {
       try {
-        const res = await privateApi.get(`${weddingSlug}/invitations`); // API lấy danh sách thiệp của user
+        const res = await privateApi.get(`event/invitations/${weddingSlug}`); // API lấy danh sách thiệp của user
         setInvitations(res.data.data);
         console.log("Danh sách Thiệp: ", res.data.data);
       } catch (error) {
-        console.error("Lỗi lấy danh sách thiệp", error);
+        console.error("Lỗi lấy danh sách thiệp", error.response?.data);
       } finally {
         setLoading(false);
       }
