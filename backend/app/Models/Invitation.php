@@ -23,7 +23,7 @@ class Invitation extends Model
      */
     public function weddingEvent(): BelongsTo
     {
-        // Laravel sẽ tự tìm cột wedding_event_id để nối với bảng wedding_events
+        // Laravel sẽ tự tìm cột wedding_event_slug để nối với bảng wedding_events
         return $this->belongsTo(WeddingEvent::class, 'wedding_event_slug', 'slug');
     }
 

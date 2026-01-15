@@ -55,12 +55,17 @@ const AddInvitation = ({ onInviteCreated }) => {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-xl border border-pink-100">
-      <h3 className="text-[#c94b6a] font-bold text-lg mb-4 flex items-center">
-        <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> Thêm Khách Mời
-      </h3>
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-0 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <h3 className="text-[#c94b6a] font-bold text-3xl mb-4 flex items-center">
+          <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> Thêm Khách Mời
+        </h3>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-4 max-w-4xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
+      >
         {/* AVATAR UPLOAD MINI */}
         <div className="flex flex-col items-center justify-center space-y-2">
           <div className="relative w-20 h-20 bg-pink-50 rounded-full border-2 border-dashed border-pink-200 flex items-center justify-center overflow-hidden">
@@ -90,15 +95,13 @@ const AddInvitation = ({ onInviteCreated }) => {
 
         {/* GUEST NAME */}
         <div>
-          <label className="text-xs font-semibold text-gray-500 ml-1">
-            Tên khách mời
-          </label>
+          <label className="text-gray-500 ml-1">Tên khách mời</label>
           <input
             type="text"
             value={guestName}
             onChange={(e) => setGuestName(e.target.value)}
             placeholder="Ví dụ: Anh Tùng & Người thương"
-            className="w-full mt-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#c94b6a] outline-none transition-all font-sans"
+            className="w-full mt-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#c94b6a] outline-none transition-all"
             required
           />
         </div>

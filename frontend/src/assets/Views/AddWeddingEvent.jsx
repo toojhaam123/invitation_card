@@ -81,10 +81,9 @@ const AddWeddingEvent = () => {
       <div className="max-w-4xl mx-auto mb-6">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center text-gray-500 hover:text-[#c94b6a] transition-colors font-sans"
+          className="flex items-center hover:text-white bg-[#c94b6a] transition-colors font-sans"
         >
-          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Quay lại danh
-          sách
+          <FontAwesomeIcon icon={faArrowLeft} className="mr-2" /> Quay lại
         </button>
       </div>
 

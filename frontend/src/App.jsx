@@ -4,13 +4,12 @@ import GuestInvitation from "./assets/Views/GuestInvitation";
 import Home from "./assets/components/Home";
 import Login from "./assets/Views/Login";
 import Register from "./assets/Views/Register";
-import EventLis from "./assets/Views/InvitationList";
 import CreateEvent from "./assets/Views/AddWeddingEvent";
 import InvitationList from "./assets/Views/InvitationList";
 import AddInvitation from "./assets/Views/AddInvitation";
 function App() {
   return (
-    <div className="app-container min-h-screen">
+    <div className="app-container overflow-x-hidden dark:bg-black bg-white font-sans">
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

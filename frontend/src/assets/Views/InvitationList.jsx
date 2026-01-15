@@ -37,18 +37,11 @@ const InvitationList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 rounded-xl">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
-      <div className="mx-auto flex flex-col mb-2">
-        <Link
-          to={`/${weddingSlug}/create-invitation`}
-          className="bg-[#c94b6a] hover:bg-[#a83a55] w-[200px] items-end text-white hover:text-white transition duration-500 px-5 py-2.5 my-3 rounded-lg flex items-center gap-2 transition-all shadow-md"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Tạo thiệp mới
-        </Link>
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-gray-800 text-start">
+      <div className="max-w-4xl mx-auto flex justify-between items-end mb-5">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800 text-start">
             Danh sách thiệp mời
           </h1>
           <div>
@@ -57,16 +50,23 @@ const InvitationList = () => {
             </p>
           </div>
         </div>
+        <Link
+          to={`/${weddingSlug}/create-invitation`}
+          className="bg-[#c94b6a] hover:bg-[#a83a55] items-end text-white text-center hover:text-white transition duration-500 px-2 py-3 shrink-0 rounded-lg flex items-center gap-2 transition-all shadow-md"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          Tạo thiệp mới
+        </Link>
       </div>
 
       {/* Danh sách thiệp */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {loading ? (
           <div className="text-center py-20 text-gray-400">
             Đang tải danh sách...
           </div>
         ) : invitations.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {invitations.map((item) => (
               <div
                 key={item.id}
@@ -106,7 +106,9 @@ const InvitationList = () => {
                           icon={faCalendarDays}
                           className="text-[#c94b6a]"
                         />
-                        {new Date(item.event_date).toLocaleDateString("vi-VN", {
+                        {new Date(
+                          item.wedding_event.event_date
+                        ).toLocaleDateString("vi-VN", {
                           day: "2-digit",
                           month: "2-digit",
                           year: "numeric",
@@ -118,7 +120,7 @@ const InvitationList = () => {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `${window.location.origin}/${item.slug}`
+                          `${window.location.origin}/${item.wedding_event.slug}/${item.slug}`
                         );
                         alert("Đã sao chép link thiệp!");
                       }}

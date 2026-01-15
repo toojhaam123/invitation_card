@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import LoadingState from "./LoadingState";
 import {
   faPlus,
   faUsers,
-  faCalendarAlt,
   faEllipsisV,
+  faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
 
 const EventDashboard = () => {
@@ -34,17 +35,12 @@ const EventDashboard = () => {
     window.location.href = "/login"; // Đẩy về trang login và xóa sạch trạng thái
   };
 
-  if (loading)
-    return (
-      <div className="p-10 text-center font-serif">
-        Đang tải danh sách sự kiện...
-      </div>
-    );
+  if (loading) return <LoadingState></LoadingState>;
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-10 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Header Dashboard */}
-      <div className="flex items-start">
+      <div className="max-w-4xl mb-6 flex">
         {!token ? (
           <button>
             <Link to="/login">Đăng nhập</Link>
@@ -55,7 +51,7 @@ const EventDashboard = () => {
           </button>
         )}
       </div>
-      <div className="max-w-7xl mx-auto mb-10 flex justify-between items-end">
+      <div className="max-w-4xl mx-auto mb-5 flex justify-between items-end">
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Quản lý Sự kiện</h1>
           <p className="text-gray-500 mt-1">
@@ -64,21 +60,21 @@ const EventDashboard = () => {
         </div>
         <button
           onClick={() => navigate("/create-event")}
-          className="bg-[#c94b6a] text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-pink-100 hover:bg-[#a83a55] transition-all"
+          className="bg-[#c94b6a] shrink-0 text-white px-2 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-pink-100 hover:bg-[#a83a55] transition-all"
         >
           <FontAwesomeIcon icon={faPlus} /> Thêm Sự Kiện
         </button>
       </div>
-
+      <div className="border-1 border max-w-4xl mx-auto mb-5"></div>
       {/* Grid Danh sách Sự kiện */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
         {events.map((event) => (
           <div
             key={event.id}
             className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300"
           >
             {/* Ảnh cover sự kiện */}
-            <div className="relative h-44">
+            <div className="relative h-44 overflow-hidden">
               <img
                 src={
                   event.cover_image
@@ -89,8 +85,8 @@ const EventDashboard = () => {
                 alt="Wedding"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-              <div className="absolute bottom-4 left-6 text-white">
-                <h3 className="text-xl font-bold">
+              <div className="absolute bottom-1 mx-1 text-white">
+                <h3 className="text-xl font-bold shrink-0 text-center whitespace-nowrap">
                   {event.groom_name} & {event.bride_name}
                 </h3>
               </div>
@@ -99,15 +95,20 @@ const EventDashboard = () => {
             {/* Nội dung tóm tắt */}
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-3 text-gray-500 text-sm">
-                  <div className="w-10 h-10 bg-pink-50 rounded-full flex items-center justify-center text-[#c94b6a]">
-                    <FontAwesomeIcon icon={faCalendarAlt} />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-700">
-                      {new Date(event.event_date).toLocaleDateString("vi-VN")}
-                    </p>
-                    <p className="text-xs italic">Ngày đại hỷ</p>
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-400 uppercase font-bold tracking-tighter">
+                    Ngày đại hỷ
+                  </span>
+                  <div className="flex items-center text-gray-700 font-semibold gap-2">
+                    <FontAwesomeIcon
+                      icon={faCalendarDays}
+                      className="text-[#c94b6a]"
+                    />
+                    {new Date(event.event_date).toLocaleDateString("vi-VN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                    })}
                   </div>
                 </div>
 

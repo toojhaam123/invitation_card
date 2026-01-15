@@ -18,15 +18,16 @@ class InvitationController extends Controller
         // Lấy Id user người dùng hiện tại 
         $userId = $request->user()->id;
 
-        $invitation = Invitation::where('user_id', $userId)->where('wedding_event_slug', $weddingEventSlug)->firstOrFail()->get();
+        $invitation = Invitation::where('user_id', $userId)->where('wedding_event_slug', $weddingEventSlug)->latest()->get();
 
-        if (!$invitation) {
+        if ($invitation->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => "Không có thiệp nào!",
+                'data' => [],
             ]);
         }
-
+        $invitation->load('weddingEvent'); // Lấy thông tin sự kiện
         return response()->json([
             'success' => true,
             'data' => $invitation,
