@@ -84,7 +84,7 @@ const GuestInvitation = () => {
         </div>
       ) : (
         /* --- TRANG NỘI DUNG CHÍNH --- */
-        <main className="relative z-10 max-w-2xl mx-auto bg-white shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] rounded-t-[3rem] mt-4">
+        <main className="relative z-10 max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] rounded-t-[3rem] my-4">
           {/* <Sparkles /> */}
 
           {/* Header & Avatar */}
@@ -103,15 +103,11 @@ const GuestInvitation = () => {
               <h2 className="font-title text-6xl md:text-8xl text-pink-600">
                 {wedding.groom_name}
               </h2>
-              <div className="relative my-8 flex items-center justify-center">
-                {/* Lớp hào quang tỏa sáng phía sau */}
+              {/* Trái tim */}
+              <div className="relative mb-3 flex items-center justify-center">
                 <div className="absolute w-16 h-16 bg-pink-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
-
-                {/* Trái tim chính với hiệu ứng đổ bóng tầng tầng lớp lớp */}
                 <div className="relative text-5xl md:text-6xl text-pink-500 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)] animate-wedding-heart">
                   <FontAwesomeIcon icon={faHeart} />
-
-                  {/* Điểm sáng lung linh (Sparkle) */}
                   <div className="absolute -top-1 -right-1 text-yellow-200 text-xs animate-ping">
                     <FontAwesomeIcon icon={faHeart} className="text-[10px]" />
                   </div>
@@ -130,13 +126,13 @@ const GuestInvitation = () => {
                 Thời gian lễ cưới
               </h3>
               <div className="space-y-3">
-                <p className="text-4xl mx-auto font-bold text-gray-800 border border-3 mt-3 border-red-500 rounded-[50%] w-[100px] h-[100px] flex justify-center items-center pb-3">
+                <p className="text-4xl mx-auto font-bold text-gray-800 border-2 mt-3 border-red-500 rounded-full w-28 h-28 flex justify-center items-center shadow-inner bg-white pb-3">
                   {new Date(wedding.event_date).toLocaleTimeString("vi-VN", {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </p>
-                <p className="text-2xl text-gray-700 uppercase font-bold capitalize ">
+                <p className="text-2xl text-gray-700 uppercase font-bold capitalize px-2text-xl font-bold text-gray-800 mb-5 capitalize uppercase px-2 leading-tight ">
                   {new Date(wedding.event_date).toLocaleDateString("vi-VN", {
                     weekday: "long",
                     day: "numeric",
@@ -266,7 +262,7 @@ const GuestInvitation = () => {
             </section>
           )}
 
-          <footer className="py-16 text-center bg-gray-50 text-gray-400 text-[10px] tracking-[0.5em] uppercase rounded-b-[3rem]">
+          <footer className="py-16 text-center bg-gray-100 text-gray-400 text-[10px] tracking-[0.5em] uppercase rounded-b-[3rem]">
             Happy Wedding • {wedding.groom_name} & {wedding.bride_name}
           </footer>
         </main>
