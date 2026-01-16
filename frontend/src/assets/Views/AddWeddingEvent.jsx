@@ -68,7 +68,7 @@ const AddWeddingEvent = () => {
       alert("✨ Chúc mừng! Sự kiện đại hỷ đã được tạo thành công.");
       navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error(error?.response.data);
       alert("Có lỗi xảy ra, Tùng kiểm tra lại Network nhé!");
     } finally {
       setLoading(false);

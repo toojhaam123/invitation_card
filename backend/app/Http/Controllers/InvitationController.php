@@ -27,7 +27,7 @@ class InvitationController extends Controller
                 'data' => [],
             ]);
         }
-        $invitation->load('weddingEvent'); // Lấy thông tin sự kiện
+        $invitation->load('weddingEvent', 'guestbooks'); // Lấy thông tin sự kiện và các bình luận thuộc sự kiện
         return response()->json([
             'success' => true,
             'data' => $invitation,
