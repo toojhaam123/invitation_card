@@ -10,7 +10,7 @@ class Guestbook extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['invitation_id', 'guest_name', 'content'];
+    protected $fillable = ['invitation_id', 'name', 'content'];
 
 
     public function invitation(): BelongsTo

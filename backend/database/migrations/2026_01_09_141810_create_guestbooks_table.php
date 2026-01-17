@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             // Kết nối đến thiệp mời 
             $table->string('invitation_id')->constrained()->cascadeOnDelete();
-            $table->string('guest_name');
+            $table->string('name');
             $table->text('content');
             $table->timestamps();
         });

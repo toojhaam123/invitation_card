@@ -45,7 +45,7 @@ class InvitationController extends Controller
             $validatedData = $request->validate([
                 'id' => 'nullable|integer',
                 'guest_name' => 'required|string|max:50',
-                'avatar' => 'nullable|image|mimes:jpeg,png,jpg|max:5020',
+                'is_attended' => 'integer|in:0,1',
             ]);
 
             // 2. Tìm thiệp cũ (nếu có id) để kiểm tra quyền sở hữu
@@ -64,20 +64,6 @@ class InvitationController extends Controller
                 $slug = $invitation->slug;
             }
 
-            // 4. Xử lý Avatar (Tên file cũ mặc định, nếu có file mới thì thay thế)
-            $avatarPath = $invitation ? $invitation->avatar : null;
-
-            if ($request->hasFile('avatar')) {
-                // Xóa ảnh cũ trên đĩa nếu tồn tại
-                if ($invitation && $invitation->avatar) {
-                    Storage::disk('public')->delete('invitations/' . $invitation->avatar);
-                }
-
-                $file = $request->file('avatar');
-                $avatarPath = time() . '_avt_' . Str::slug($validatedData['guest_name']) . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('invitations', $avatarPath, 'public');
-            }
-
             // 5. Sử dụng updateOrCreate để lưu dữ liệu
             // Mảng 1: Điều kiện tìm kiếm
             // Mảng 2: Dữ liệu cần cập nhật/tạo mới
@@ -90,7 +76,6 @@ class InvitationController extends Controller
                     'wedding_event_slug' => $weddingEventSlug,
                     'guest_name' => $validatedData['guest_name'],
                     'slug' => $slug,
-                    'avatar' => $avatarPath,
                 ]
             );
 
@@ -141,5 +126,24 @@ class InvitationController extends Controller
             'success' => true,
             'data'    => $invitation,
         ]);
+    }
+
+    // Phản hồi 
+    public function respond(Request $request, $weddingEventSlug, $guestNameSlug)
+    {
+        $validatedData = $request->validate([
+            'is_attended' => 'required|in:0,1',
+        ]);
+
+        // Tìm thiệp dựa trên slug để đảm bảo tính an toàn
+        $invitation = Invitation::where('wedding_event_slug', $weddingEventSlug)
+            ->where('slug', $guestNameSlug)
+            ->firstOrFail();
+
+        $invitation->update([
+            'is_attended' => $validatedData['is_attended']
+        ]);
+
+        return response()->json(['message' => 'Cập nhật thành công!']);
     }
 }

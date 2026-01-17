@@ -24,11 +24,10 @@ class GuestbookController extends Controller
         // Validated dữ liệu 
         $validated = $request->validate([
             'invitation_id' => 'required|exists:invitations,id',
-            'guest_name' => 'required|string|max:50',
+            'name' => 'required|string|max:50',
             'content' => 'required|string|max:500',
         ], [
             'invitation_id.exists' => 'Thiệp mời không tồn tại!',
-            'guest_name.required' => 'Vui lòng nhập tên để tôi biết quý khách là ai!',
             'content.required' => 'Đừng quên để lại lời chúc nhé!',
         ]);
 

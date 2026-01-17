@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('wedding_event_slug')->required();
             $table->string('guest_name')->required();
             $table->string('slug')->unique();
-            $table->string('avatar')->nullable();
+            $table->tinyInteger('is_attended')->nullable()->default(null);
             $table->timestamps();
         });
     }

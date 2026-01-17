@@ -44,30 +44,30 @@ class DatabaseSeeder extends Seeder
         $invite1 = Invitation::create([
             'user_id' => $user1->id,
             'wedding_event_slug' => $weddingEvent->slug,
-            'guest_name' => 'Hạng A Tùng',
-            'slug' => 'hang-a-tung',
-            'avatar' => null,
+            'guest_name' => 'Bạn: Giàng A Pềnh',
+            'slug' => 'ban-giang-a-penh',
+            'is_attended' => null,
         ]);
 
         // Thiệp 2: Cho Chị Hoa
         $invite2 = Invitation::create([
             'user_id' => $user1->id,
             'wedding_event_slug' => $weddingEvent->slug,
-            'guest_name' => 'Sùng Thị Đới',
-            'slug' => 'sung-thi-doi',
-            'avatar' => null,
+            'guest_name' => 'GĐ Cô: Đạng Thị Vân Chi',
+            'slug' => 'dg-co-dang-thi-van-chi',
+            'is_attended' => null,
         ]);
 
         // 4. Tạo lời chúc mẫu cho từng thiệp (Guestbook)
         Guestbook::create([
             'invitation_id' => $invite1->id,
-            'guest_name' => 'Anh Tuấn',
+            'name' => $invite1->guest_name,
             'content' => 'Chúc hai bạn trăm năm hạnh phúc nhé!',
         ]);
 
         Guestbook::create([
             'invitation_id' => $invite2->id,
-            'guest_name' => 'Chị Hoa',
+            'name' => $invite2->guest_name,
             'content' => 'Thiệp đẹp quá, chúc mừng gia đình!',
         ]);
 
