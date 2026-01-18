@@ -102,7 +102,8 @@ class InvitationController extends Controller
     public function show(Request $request, $weddingEventSlug, $guestNameSlug)
     {
         // Tìm thiệp theo slug trước
-        $invitation = Invitation::where('slug', $guestNameSlug)->where('wedding_event_slug', $weddingEventSlug)->first();
+        $invitation = Invitation::where('slug', $guestNameSlug)
+            ->where('wedding_event_slug', $weddingEventSlug)->firstOrFail();
 
         // Ghi nhật ký truy cập (Tăng lượt xem trước khi lấy dữ liệu)
         ActivityLog::create([
@@ -111,8 +112,6 @@ class InvitationController extends Controller
             'user_agent'    => $request->header('User-Agent'),
             'viewed_at'     => now(),
         ]);
-
-        // Lấy thông tin sự kiện để chi vào thiệp 
 
         // Load thêm các quan hệ và đếm (Sử dụng load() và loadCount() riêng biệt)
         $invitation->load(['weddingEvent', 'guestbooks' => function ($query) {

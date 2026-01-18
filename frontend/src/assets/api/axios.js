@@ -33,7 +33,7 @@ privateApi.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Interceptor: Xử lý nếu Token bị sai/hết hạn (Lỗi 401)
@@ -41,10 +41,10 @@ privateApi.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Nếu lỗi 401 (chưa đăng nhập), xóa token cũ và đẩy về trang login
       localStorage.removeItem("token");
-      //   window.location.href = "/login";
+      // Thay vì Promise.reject(error), mình trả về một object lỗi êm đẹp
+      return Promise.resolve({ data: null, error: "Unauthorized" });
     }
     return Promise.reject(error);
-  }
+  },
 );

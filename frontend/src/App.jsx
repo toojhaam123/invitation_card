@@ -7,6 +7,7 @@ import Register from "./assets/Views/Register";
 import CreateEvent from "./assets/Views/AddWeddingEvent";
 import InvitationList from "./assets/Views/InvitationList";
 import AddInvitation from "./assets/Views/AddInvitation";
+import ProtectRoute from "./assets/components/ProtectRoute";
 function App() {
   return (
     <div className="app-container overflow-x-hidden dark:bg-black bg-white font-sans">
@@ -14,21 +15,41 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/" element={<Home />} />
+
         {/* Tạo sự kiện  */}
-        <Route path="/create-event" element={<CreateEvent />} />
+        <Route
+          path="/create-event"
+          element={
+            <ProtectRoute>
+              <CreateEvent />
+            </ProtectRoute>
+          }
+        />
 
         {/* Tạo thiệp mới và danh sách các thiệp mời */}
         <Route
           path="/:weddingSlug/create-invitation"
-          element={<AddInvitation />}
+          element={
+            <ProtectRoute>
+              <AddInvitation />
+            </ProtectRoute>
+          }
         />
         {/* Xem chi tiết thiệp mời  */}
         <Route
           path="/:weddingSlug/:guestNameSlug"
           element={<GuestInvitation />}
         ></Route>
+
         {/* Danh sách các thiệp */}
-        <Route path="/:weddingSlug" element={<InvitationList />} />
+        <Route
+          path="/:weddingSlug"
+          element={
+            <ProtectRoute>
+              <InvitationList />
+            </ProtectRoute>
+          }
+        />
       </Routes>
     </div>
   );

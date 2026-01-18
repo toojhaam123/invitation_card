@@ -2,57 +2,36 @@ import { useState } from "react";
 import { useParams } from "react-router-dom"; // Để lấy wedding_event_id từ URL
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faUserPlus,
-  faCamera,
-  faPaperPlane,
-} from "@fortawesome/free-solid-svg-icons";
+import { faUserPlus, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import LoadingState from "../components/LoadingState";
 
-const AddInvitation = ({ onInviteCreated }) => {
+const AddInvitation = () => {
   const { weddingSlug } = useParams();
   const [guestName, setGuestName] = useState("");
-  const [avatar, setAvatar] = useState(null);
-  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  // Xử lý chọn ảnh và tạo preview
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setAvatar(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    const data = new FormData();
-    data.append("guest_name", guestName);
-    if (avatar) data.append("avatar", avatar);
-
     try {
-      await privateApi.post(`event/invitations/${weddingSlug}`, data, {
-        headers: { "Content-Type": "multipart/form-data" },
+      await privateApi.post(`event/invitations/${weddingSlug}`, {
+        guest_name: guestName,
       });
 
       alert(`🎉 Đã tạo thiệp cho: ${guestName}`);
 
       // Reset form
       setGuestName("");
-      setAvatar(null);
-      setPreview(null);
-
-      // Nếu Tùng có hàm load lại danh sách thì gọi ở đây
-      if (onInviteCreated) onInviteCreated();
     } catch (error) {
-      console.error("Lỗi tạo thiệp:", error?.response.data);
+      console.error("Lỗi tạo thiệp:", error?.response?.data);
       alert("Không tạo được thiệp, Tùng kiểm tra lại nhé!");
     } finally {
       setLoading(false);
     }
   };
+
+  if (loading) return <LoadingState></LoadingState>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-0 sm:px-6 lg:px-8">
@@ -66,33 +45,6 @@ const AddInvitation = ({ onInviteCreated }) => {
         onSubmit={handleSubmit}
         className="space-y-4 max-w-4xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
       >
-        {/* AVATAR UPLOAD MINI */}
-        <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="relative w-20 h-20 bg-pink-50 rounded-full border-2 border-dashed border-pink-200 flex items-center justify-center overflow-hidden">
-            {preview ? (
-              <img
-                src={preview}
-                alt="Preview"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <FontAwesomeIcon
-                icon={faCamera}
-                className="text-pink-300 text-xl"
-              />
-            )}
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="absolute inset-0 opacity-0 cursor-pointer"
-              accept="image/*"
-            />
-          </div>
-          <span className="text-[10px] text-gray-400 uppercase tracking-tighter">
-            Ảnh khách mời (nếu có)
-          </span>
-        </div>
-
         {/* GUEST NAME */}
         <div>
           <label className="text-gray-500 ml-1">Tên khách mời</label>

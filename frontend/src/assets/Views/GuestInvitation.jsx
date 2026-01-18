@@ -4,24 +4,38 @@ import { publicApi } from "../api/axios";
 import Sparkles from "../components/InvitationView/Sparkles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "../components/LoadingState";
-import { faHeart, faEnvelopeOpenText } from "@fortawesome/free-solid-svg-icons";
+import {
+  faHeart,
+  faPhone,
+  faQrcode,
+  faEnvelopeOpenText,
+} from "@fortawesome/free-solid-svg-icons";
+import useAuth from "../hooks/me";
 
 const GuestInvitation = () => {
+  const { me } = useAuth();
+  const token = localStorage.getItem("token");
   const { weddingSlug, guestNameSlug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
-  // Giả sử Tùng thêm state này ở trên đầu component
+
+  let [name, setName] = useState();
+  const [content, setContent] = useState();
+  const [guestbooks, setGuestBooks] = useState([]);
+  const [error, setError] = useState();
 
   useEffect(() => {
     const fetchInvitation = async () => {
       try {
         const res = await publicApi.get(
-          `invitations/${weddingSlug}/${guestNameSlug}`
+          `invitations/${weddingSlug}/${guestNameSlug}`,
         );
         setData(res.data.data);
+        setGuestBooks(res.data.data.guestbooks);
+        setName(res.data.data.guest_name);
       } catch (error) {
         console.error("Lỗi tải thiệp", error?.response.data);
       } finally {
@@ -52,12 +66,47 @@ const GuestInvitation = () => {
     }
   };
 
+  // Hàm gửi lời chúc
+  const handleSendWish = async (e) => {
+    e.preventDefault();
+
+    if (!content || content.trim() === "") {
+      setError("Quý khách đừng quên nhập lời chúc trước khi gửi!");
+      return;
+    }
+
+    if (token) {
+      name = me?.name;
+    }
+
+    try {
+      const res = await publicApi.post(
+        `wedding/${weddingSlug}/${guestNameSlug}/guestbook`,
+        {
+          name: name,
+          content: content,
+        },
+      );
+
+      if (res.data.success) {
+        alert(`Cảm ơn những lời chúc tốt đẹp của ${name}!`);
+        setGuestBooks([res.data.data, ...guestbooks]);
+        setContent("");
+      } else {
+        setError(res.data.message);
+      }
+    } catch (e) {
+      setError(e?.response?.data?.message);
+      console.log("Lỗi khi gửi lời chúc: ", e?.response?.data);
+    }
+  };
+
   if (loading) return <LoadingState />;
   if (!data || !data.wedding_event) return <ErrorState />;
 
   const wedding = data.wedding_event;
-  const guestbooks = data.guestbooks;
-  console.log(data);
+  console.log("data: ", data);
+
   const logsCount = data.logs_count;
   return (
     <div className="min-h-screen bg-[#FFF5F7] overflow-x-hidden font-content">
@@ -96,7 +145,9 @@ const GuestInvitation = () => {
                   <FontAwesomeIcon icon={faEnvelopeOpenText} />
                   MỞ THIỆP
                 </button>
-                <p className="z-100">Đã xem {logsCount} lần</p>
+                {token && me?.id == wedding?.user_id && (
+                  <p className="z-100">Đã xem {logsCount} lần</p>
+                )}
               </div>
             </div>
           </div>
@@ -195,10 +246,10 @@ const GuestInvitation = () => {
                   NHÀ TRAI
                 </h4>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.groom_father || "Hạng A Lềnh"}
+                  {wedding.groom_father || "..."}
                 </p>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.groom_mother || "Giàng Thị Lỳ"}
+                  {wedding.groom_mother || "..."}
                 </p>
                 <p className="text-start text-lg font-bold text-gray-700">
                   Chú rể:{" "}
@@ -212,10 +263,10 @@ const GuestInvitation = () => {
                   NHÀ GÁI
                 </h4>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.bride_father || "Ly A Phong"}
+                  {wedding.bride_father || "..."}
                 </p>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.bride_mother || "Giàng Thị Vá"}
+                  {wedding.bride_mother || "..."}
                 </p>
                 <p className="text-start text-lg font-bold text-gray-700">
                   Cô dâu:{" "}
@@ -247,10 +298,10 @@ const GuestInvitation = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
               {/* Nút Sẽ tham gia */}
               <button
-                onClick={() => [
-                  handleAttendance(1),
-                  alert("Cảm ơn quý khác đã xác nhận tham dự! ❤️"),
-                ]} // Tùng có thể thay bằng logic gọi API sau này
+                onClick={() => {
+                  handleAttendance(1);
+                  alert("Cảm ơn quý khác đã xác nhận tham dự! ❤️");
+                }} // Tùng có thể thay bằng logic gọi API sau này
                 className="group relative w-full sm:w-48 py-4 bg-pink-500 text-white rounded-2xl font-bold shadow-[0_10px_20px_rgba(236,72,153,0.3)] transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
@@ -263,12 +314,12 @@ const GuestInvitation = () => {
 
               {/* Nút Không tham gia */}
               <button
-                onClick={() => [
-                  handleAttendance(0),
+                onClick={() => {
+                  handleAttendance(0);
                   alert(
-                    "Tiếc quá nhỉ, hẹn gặp quý khách vào dịp gần nhất nhé! ❤️"
-                  ),
-                ]}
+                    "Tiếc quá nhỉ, hẹn gặp quý khách vào dịp gần nhất nhé! ❤️",
+                  );
+                }}
                 className="w-full sm:w-48 py-4 bg-white text-pink-400 border-2 border-pink-200 rounded-2xl font-bold shadow-sm transition-all hover:bg-pink-50 active:scale-95 flex items-center justify-center gap-2"
               >
                 KHÔNG THAM GIA
@@ -294,7 +345,7 @@ const GuestInvitation = () => {
                     key={index}
                     onClick={() =>
                       setSelectedImg(
-                        `http://localhost:8000/storage/weddingevents/albums/${img}`
+                        `http://localhost:8000/storage/weddingevents/albums/${img}`,
                       )
                     }
                     className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
@@ -313,7 +364,7 @@ const GuestInvitation = () => {
                   className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 animate-[fadeIn_0.3s_ease-out]"
                   onClick={() => setSelectedImg(null)} // Bấm ra ngoài để đóng
                 >
-                  <button className="absolute top-6 right-6 text-white text-4xl">
+                  <button className="absolute top-4 right-5 text-white/80 hover:text-white text-4xl px-3 py-1 rounded-full bg-transparent hover:bg-white/10 transition-all duration-300">
                     &times;
                   </button>
 
@@ -350,21 +401,38 @@ const GuestInvitation = () => {
                 chúng mình
               </p>
 
-              <div className="space-y-4 max-w-md mx-auto">
+              <form
+                onSubmit={handleSendWish}
+                className="space-y-4 max-w-md mx-auto"
+              >
+                {error && (
+                  <span className="text-red-500 font-content text-sm italic">
+                    {error}
+                  </span>
+                )}
                 <textarea
-                  placeholder="Nhập lời chúc của quý khách tại đây..."
+                  placeholder={`Mời ${name} nhập lời chúc tại đây...`}
+                  name="content"
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    if (e.target.value) setError("");
+                  }}
                   className="w-full p-4 rounded-2xl border-2 border-pink-50 focus:border-pink-300 focus:ring-0 outline-none transition-all h-32 text-gray-700 bg-pink-50/20 shadow-inner italic"
                 ></textarea>
 
-                <button className="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-pink-200 transition-all active:scale-95">
+                <button
+                  type="submit"
+                  className="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-pink-200 transition-all active:scale-95"
+                >
                   GỬI LỜI CHÚC
                 </button>
-              </div>
+              </form>
             </div>
           </section>
 
           {/* --- DANH SÁCH LỜI CHÚC (WISHES WALL) --- */}
-          <section className="pb-16 px-4 bg-white">
+          <section className="pb-8 px-4 bg-white">
             <div className="max-w-md mx-auto">
               {/* Đường kẻ ngăn cách nhẹ nhàng */}
               <div className="flex items-center gap-4 mb-4">
@@ -410,9 +478,73 @@ const GuestInvitation = () => {
             </div>
           </section>
 
-          <footer className="py-16 text-center bg-gray-50 rounded-b-[3rem] px-4">
+          <footer className="pt-2 text-center bg-gray-50 rounded-b-[3rem] px-4 pb-10">
+            {/* QR và liên hệ */}
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto md:mx-4">
+              {/* Thẻ QR Code Ngân hàng */}
+              {wedding.qr_code_bank && (
+                <div className="bg-white w-full p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center transition-all hover:shadow-md">
+                  <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
+                    <FontAwesomeIcon
+                      icon={faQrcode}
+                      className="text-pink-500 text-xl"
+                    />
+                  </div>
+                  <div className="text-center mb-6">
+                    <p className="text-pink-600 font-medium italic text-sm md:text-base leading-relaxed">
+                      "Mọi sự thương yêu xin vui lòng ghi rõ nội dung{" "}
+                      <br className="hidden sm:block" />
+                      để chúng mình lưu giữ kỷ niệm ạ!"
+                    </p>
+                    <div className="w-10 h-[1px] bg-pink-200 mx-auto mt-3"></div>
+                  </div>
+
+                  <div className="relative group">
+                    <img
+                      src={`http://localhost:8000/storage/weddingevents/qrcode/${wedding.qr_code_bank}`}
+                      alt="QR Code"
+                      className="w-40 h-40 object-cover rounded-xl border-4 border-gray-50 shadow-inner group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                  </div>
+                  <p className="mt-3 text-xs text-gray-400 italic">
+                    Quét mã để gửi lời chúc và quà cưới
+                  </p>
+                </div>
+              )}
+
+              {/* Thẻ Liên hệ */}
+              {wedding?.phone_contacts && (
+                <section className="bg-white p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center justify-center transition-all hover:shadow-md">
+                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                    <FontAwesomeIcon
+                      icon={faPhone}
+                      className="text-blue-400 text-xl"
+                    />
+                  </div>
+                  <h3 className="text-gray-800 font-bold mb-3 uppercase tracking-wider text-sm">
+                    Hỗ trợ & Liên hệ
+                  </h3>
+                  <div className="space-y-2">
+                    <p className="text-gray-600 font-medium">
+                      {wedding.phone_contacts}
+                    </p>
+                    <a
+                      href={`tel:${wedding.phone_contacts}`}
+                      className="inline-block mt-2 px-6 py-2 bg-blue-50 text-blue-500 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
+                    >
+                      Gọi ngay
+                    </a>
+                  </div>
+                  <p className="mt-4 text-xs text-gray-400 italic">
+                    Liên hệ nếu bạn cần chỉ đường hoặc hỗ trợ
+                  </p>
+                </section>
+              )}
+            </div>
+
             {/* Biểu tượng nhỏ xinh ở trên */}
-            <div className="text-pink-200 text-xs mb-4 tracking-[0.3em] flex items-center justify-center gap-2">
+            <div className="text-pink-200 text-xs mb-4 mt-8 tracking-[0.3em] flex items-center justify-center gap-2">
               <div className="h-[1px] w-8 bg-pink-100"></div>
               <FontAwesomeIcon icon={faHeart} />
               <div className="h-[1px] w-8 bg-pink-100"></div>

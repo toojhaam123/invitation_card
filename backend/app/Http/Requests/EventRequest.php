@@ -32,6 +32,14 @@ class EventRequest extends FormRequest
             'bride_name'     => 'required|string|max:255',
             'phone_contacts' => 'nullable|string|max:20',
 
+            // Bên trai 
+            'groom_father' => 'required|string|max:255',
+            'groom_mother' => 'required|string|max:255',
+
+            // Bên gái
+            'bride_father' => 'required|string|max:255',
+            'bride_mother' => 'required|string|max:255',
+
             // Thời gian phải đúng định dạng date (Y-m-d H:i:s)
             'event_date'     => 'required|date',
             'lunar_date'     => 'nullable|string|max:255',
@@ -43,11 +51,11 @@ class EventRequest extends FormRequest
             'map_iframe'     => 'nullable|string',
 
             // Kiểm tra file ảnh (nếu bạn gửi file trực tiếp) hoặc string (nếu gửi link)
-            'cover_image'    => 'nullable|image|mimes:jpg,png,gift|max:4096',
+            'cover_image'    => 'nullable|image|mimes:jpg,png,gift|max:5120',
             'album_image'    => 'nullable|array', // Vì mình cast nó là array trong Model
 
             'music_url'      => 'nullable|url',
-            'qr_code_bank'   => 'nullable|string',
+            'qr_code_bank'   => 'nullable|image|mimes:jpg,png,gift|max:5120',
         ];
     }
 

@@ -22,7 +22,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/{weddingSlug}/{guestNameSlug}/respond', [InvitationController::class, 'respond']);
 
     // Route thêm lời chúc của khách 
-    Route::post('/guestbook', [GuestbookController::class, 'store'])
+    Route::post('wedding/{weddingSlug}/{guestNameSlug}/guestbook', [GuestbookController::class, 'store'])
         ->middleware('throttle:guestbook_spam');
 
     // -------- Nhóm các API quản lý (Cần đăng nhập) ------

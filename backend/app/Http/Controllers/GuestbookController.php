@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guestbook;
+use App\Models\Invitation;
 use Illuminate\Http\Request;
 
 class GuestbookController extends Controller
 {
     // Khách gửi lời chút mới 
-    public function store(Request $request)
+    public function store(Request $request, $wddingSlug, $guestNameSlug)
     {
         // chặn các từ ngữu phản cản
         $badWords = ['xấu', 'tệ', 'vl', 'dm', 'dmm', 'vcl', 'địt mẹ', 'địt cụ', 'ngu', 'ngáo', 'cút'];
@@ -17,22 +18,30 @@ class GuestbookController extends Controller
             if (str_contains(strtolower($request->content), $word)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Lời chút chứa từ ngữ không phù hợp',
+                    'message' => 'Lời chúc chứa từ ngữ không phù hợp',
                 ], 422);
             }
         }
+
+        // Tìm thiệp
+        $invitation = Invitation::where('wedding_event_slug', $wddingSlug)
+            ->where('slug', $guestNameSlug)->firstOrFail();
+
         // Validated dữ liệu 
         $validated = $request->validate([
-            'invitation_id' => 'required|exists:invitations,id',
             'name' => 'required|string|max:50',
             'content' => 'required|string|max:500',
         ], [
             'invitation_id.exists' => 'Thiệp mời không tồn tại!',
-            'content.required' => 'Đừng quên để lại lời chúc nhé!',
+            'content.required' => 'Quý khách đừng quên nhập lời chúc trước khi gửi!',
         ]);
 
         // Lưu vào DB 
-        $guestbook = Guestbook::create($validated);
+        $guestbook = Guestbook::create([
+            'invitation_id' => $invitation->id,
+            'name' => $validated['name'],
+            'content' => $validated['content'],
+        ]);
 
         // return
         return response()->json([

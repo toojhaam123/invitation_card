@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import useAuth from "../hooks/me";
 import {
   faPlus,
   faEye,
@@ -15,6 +16,7 @@ const InvitationList = () => {
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const { weddingSlug } = useParams();
+  const { me } = useAuth();
 
   useEffect(() => {
     const fetchInvitations = async () => {
@@ -45,8 +47,8 @@ const InvitationList = () => {
             Danh sách thiệp mời
           </h1>
           <div>
-            <p className="text-gray-500 text-sm">
-              Chào Tùng, bạn đang có {invitations.length} thiệp mời.
+            <p className="text-gray-500 text-sm px-1">
+              Chào {me?.name}, bạn đang có {invitations.length} thiệp mời.
             </p>
           </div>
         </div>
@@ -76,8 +78,8 @@ const InvitationList = () => {
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={
-                      item.avatar
-                        ? `http://localhost:8000/storage/invitations/${item?.avatar}`
+                      item?.wedding_event?.cover_image
+                        ? `http://localhost:8000/storage/weddingevents/covers/${item?.wedding_event?.cover_image}`
                         : "https://via.placeholder.com/400x200?text=Wedding+Invitation"
                     }
                     alt="Cover"
@@ -107,7 +109,7 @@ const InvitationList = () => {
                           className="text-[#c94b6a]"
                         />
                         {new Date(
-                          item.wedding_event.event_date
+                          item.wedding_event.event_date,
                         ).toLocaleDateString("vi-VN", {
                           day: "2-digit",
                           month: "2-digit",
@@ -120,7 +122,7 @@ const InvitationList = () => {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `${window.location.origin}/${item.wedding_event.slug}/${item.slug}`
+                          `${window.location.origin}/${item.wedding_event.slug}/${item.slug}`,
                         );
                         alert("Đã sao chép link thiệp!");
                       }}

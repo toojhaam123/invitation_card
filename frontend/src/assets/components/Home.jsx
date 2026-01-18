@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "./LoadingState";
+import useAuth from "../hooks/me";
 import {
   faPlus,
   faUsers,
@@ -11,6 +12,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 const EventDashboard = () => {
+  const { me } = useAuth();
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -55,7 +58,7 @@ const EventDashboard = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-800">Quản lý Sự kiện</h1>
           <p className="text-gray-500 mt-1">
-            Chào Tùng, hôm nay bạn có bao nhiêu thiệp hồng?
+            Chào {me?.name}, hôm nay bạn có bao nhiêu thiệp hồng?
           </p>
         </div>
         <button

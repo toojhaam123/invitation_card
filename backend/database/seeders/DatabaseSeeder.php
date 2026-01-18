@@ -53,7 +53,7 @@ class DatabaseSeeder extends Seeder
         $invite2 = Invitation::create([
             'user_id' => $user1->id,
             'wedding_event_slug' => $weddingEvent->slug,
-            'guest_name' => 'GĐ Cô: Đạng Thị Vân Chi',
+            'guest_name' => 'GĐ Cô: Đặng Thị Vân Chi',
             'slug' => 'dg-co-dang-thi-van-chi',
             'is_attended' => null,
         ]);

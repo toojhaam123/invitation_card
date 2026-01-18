@@ -15,7 +15,7 @@ class Invitation extends Model
         'wedding_event_slug',
         'guest_name',
         'slug',
-        'avatar'
+        'is_attended',
     ];
 
     /**
