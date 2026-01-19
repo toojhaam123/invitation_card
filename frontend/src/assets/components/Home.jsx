@@ -8,7 +8,6 @@ import useAuth from "../hooks/me";
 import {
   faPlus,
   faUsers,
-  faEllipsisV,
   faCalendarDays,
   faEdit,
   faTrashAlt,
@@ -18,12 +17,12 @@ const EventDashboard = () => {
   const { me } = useAuth();
 
   const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const [showMenu, setShowMenu] = useState(null); // Lưu ID của sự kiện đang mở menu
 
   useEffect(() => {
+    setLoading(true);
     const fetchEvents = async () => {
       try {
         const res = await privateApi.get("/events");
@@ -45,9 +44,22 @@ const EventDashboard = () => {
   };
 
   // Delete
-  const handleDelete = () => {
-    alert("Sẽ thêm tính năng xóa sau!");
+  const handleDelete = async (eventId) => {
+    setLoading(true);
+    try {
+      const res = await privateApi.delete(`delete/wedding-event/${eventId}`);
+      if (res.data.success) {
+        alert("Xóa sự kiện thành công!");
+      }
+      setEvents((prev) => prev.filter((events) => events.id !== eventId));
+    } catch (e) {
+      console.log("Lỗi khi xóa sự kiện!", e?.response?.data);
+      alert("Không thể xóa sự kiện, thử lại sau!");
+    } finally {
+      setLoading(false);
+    }
   };
+
   if (loading) return <LoadingState></LoadingState>;
 
   return (
@@ -151,74 +163,45 @@ const EventDashboard = () => {
               </div>
 
               {/* Nút hành động chính */}
-              <div className="flex items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
-                {/* Link Quản lý - Thêm whitespace-nowrap để chữ không bị xuống dòng */}
+              <div className="flex items-center gap-2 pt-4 border-t border-gray-100 mt-auto">
+                {/* Nút Quản lý khách - Chiếm phần lớn diện tích */}
                 <Link
                   to={`/${event.slug}/`}
-                  className="flex-1 bg-gray-900 text-white p-3 rounded-2xl text-center text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-md whitespace-nowrap"
+                  className="flex-[3] bg-[#c94b6a] text-white p-3 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#a83a55] transition-all shadow-sm active:scale-95 whitespace-nowrap"
                 >
-                  <FontAwesomeIcon icon={faUsers} className="text-xs" />
+                  <FontAwesomeIcon icon={faUsers} />
                   <span>Quản lý khách</span>
                 </Link>
 
-                {/* Cụm Dropdown Menu */}
-                <div className="relative shrink-0">
+                {/* Nhóm nút Sửa & Xóa - Nhỏ gọn bên phải */}
+                <div className="flex flex-[1] gap-2">
+                  {/* Nút Sửa */}
                   <button
-                    onClick={() =>
-                      setShowMenu(showMenu === event.id ? null : event.id)
-                    }
-                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all border ${
-                      showMenu === event.id
-                        ? "bg-pink-50 text-[#c94b6a] border-pink-200"
-                        : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-pink-50 hover:text-[#c94b6a]"
-                    }`}
+                    onClick={() => {
+                      navigate(`/edit-event/${event.id}`);
+                    }}
+                    className="p-3 flex-1 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-blue-600 transition-all active:scale-90 flex items-center justify-center"
+                    title="Chỉnh sửa"
                   >
-                    <FontAwesomeIcon icon={faEllipsisV} />
+                    <FontAwesomeIcon icon={faEdit} />
                   </button>
 
-                  {showMenu === event.id && (
-                    <>
-                      {/* Lớp phủ full màn hình để đóng menu khi bấm ra ngoài */}
-                      <div
-                        className="fixed inset-0 z-[60]"
-                        onClick={() => setShowMenu(null)}
-                      ></div>
-
-                      {/* Menu nội dung - Chỉnh lại tọa độ và z-index */}
-                      <div className="absolute right-0 bottom-full mb-2 w-44 bg-white rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.1)] border border-gray-100 z-[70] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
-                        <button
-                          onClick={() => {
-                            if (
-                              window.confirm(
-                                "Bạn có chắc chắn muốn xóa sự kiện này?",
-                              )
-                            )
-                              handleDelete(event.id);
-                            setShowMenu(null);
-                          }}
-                          className="w-full px-4 py-3 text-left text-sm text-red-500 hover:text-red-400 
-                          hover:bg-gray-900 flex items-center gap-3 transition-colors border-t border-gray-50"
-                        >
-                          <FontAwesomeIcon icon={faTrashAlt} className="" />
-                          <span className="font-semibold">Xóa sự kiện</span>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            navigate(`/edit-event/${event.id}`);
-                            setShowMenu(null);
-                          }}
-                          className="w-full px-4 py-3 group text-left text-sm text-gray-100 hover:bg-gray-900 hover:text-gray-400 flex items-center gap-3 transition-colors"
-                        >
-                          <FontAwesomeIcon
-                            icon={faEdit}
-                            className="text-gray-100"
-                          />
-                          <span className="font-semibold">Chỉnh sửa</span>
-                        </button>
-                      </div>
-                    </>
-                  )}
+                  {/* Nút Xóa */}
+                  <button
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Tùng có chắc chắn muốn xóa sự kiện này?",
+                        )
+                      ) {
+                        handleDelete(event.id);
+                      }
+                    }}
+                    className="p-3 flex-1 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
+                    title="Xóa sự kiện"
+                  >
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </div>
               </div>
             </div>

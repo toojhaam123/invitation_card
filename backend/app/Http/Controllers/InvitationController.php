@@ -149,4 +149,36 @@ class InvitationController extends Controller
             'data' => $invitation,
         ]);
     }
+
+    // Xóa thiệp mời 
+    public function destroy(Request $request, $invitationId)
+    {
+        try {
+            // Lấy thông tin người xóa
+            $userId = $request->user()->id;
+
+            // Tìm thiệp cần xóa 
+            $invitation = Invitation::findOrFail($invitationId);
+
+            if ($invitation->user_id !== $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Bạn không có quyền xóa thiệp này!",
+                ], 403);
+            }
+
+            $invitation->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Xóa thiệp mời thành công!",
+
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Lỗi hệ thống!" . $th->getMessage(),
+            ]);
+        }
+    }
 }

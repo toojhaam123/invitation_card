@@ -43,8 +43,6 @@ const AddOrUpdateWeddingEvent = () => {
         try {
           const res = await privateApi.get(`events/${eventId}`);
           const data = res.data.data;
-          console.log("Chi tiết sự kiện: ", res.data.data);
-
           setFormData({
             id: data.id,
             groom_name: data.groom_name || "",

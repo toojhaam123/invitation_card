@@ -26,7 +26,7 @@ const InvitationList = () => {
       try {
         const res = await privateApi.get(`event/invitations/${weddingSlug}`); // API lấy danh sách thiệp của user
         setInvitations(res.data.data);
-        // console.log("Danh sách Thiệp: ", res.data.data);
+        console.log("Danh sách Thiệp: ", res.data.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách thiệp", error.response?.data);
       } finally {
@@ -37,8 +37,21 @@ const InvitationList = () => {
   }, []);
 
   // Delete
-  const handleDelete = (id) => {
-    return alert("Tính năng xóa sẽ cập nhật sau nhé!", id);
+  const handleDelete = async (invitationId) => {
+    setLoading(true);
+    try {
+      const res = await privateApi.delete(`delete/invitation/${invitationId}`);
+
+      if (res.data.success) {
+        setInvitations((prev) => prev.filter(invitations?.id !== invitationId));
+        alert("Xóa thiệp mời thành công!");
+      }
+    } catch (e) {
+      alert("Lỗi khi xóa thiệp mời!");
+      console.log("Lỗi xóa thiệp mời: ", e?.response?.data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) return <LoadingState></LoadingState>;
@@ -62,8 +75,8 @@ const InvitationList = () => {
         <Link
           to={`/${weddingSlug}/create-invitation`}
           className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] group hover:to-[#a83a55] text-white hover:text-white px-4 md:px-6 py-2.5 rounded-full 
-    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
-    active:scale-95 whitespace-nowrap shrink-0"
+                    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+                    active:scale-95 whitespace-nowrap shrink-0"
         >
           <FontAwesomeIcon icon={faPlus} />
           <span className="font-bold tracking-wide">Tạo thiệp mới</span>
@@ -135,7 +148,7 @@ const InvitationList = () => {
                       </div>
                     </div>
 
-                    {/* Nút Copy Link nhanh (Ngầu là phải có cái này) */}
+                    {/* Nút Copy Link */}
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(
@@ -160,22 +173,31 @@ const InvitationList = () => {
                       <FontAwesomeIcon icon={faEye} className="shrink-0" />
                       <span className="truncate">Xem thiệp</span>
                     </Link>
+                    <div className="flex flex-[1] gap-2">
+                      {/* Nút Sửa */}
+                      <Link
+                        to={`/edit/${item.id}`}
+                        className="p-3 flex-1 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-blue-600 transition-all active:scale-90 flex items-center justify-center"
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </Link>
 
-                    {/* Nút Sửa - Cố định kích thước vuông, không co lại */}
-                    <Link
-                      to={`/edit/${item.id}`}
-                      className="w-10 h-10 shrink-0 flex items-center justify-center bg-gray-50 text-gray-600 rounded-xl text-sm font-bold hover:bg-blue-50 hover:text-blue-600 transition-all border border-gray-100 active:scale-90"
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </Link>
-
-                    {/* Nút Xóa - Cố định kích thước vuông, không co lại */}
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="w-10 h-10 shrink-0 flex items-center justify-center bg-gray-50 text-gray-400 rounded-xl text-sm hover:bg-red-50 hover:text-red-500 transition-all border border-gray-100 active:scale-90"
-                    >
-                      <FontAwesomeIcon icon={faTrashCan} />
-                    </button>
+                      {/* Nút Xóa - Cố định kích thước vuông, không co lại */}
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "Tùng có chắc chắn muốn xóa thiệp mời này này?",
+                            )
+                          ) {
+                            handleDelete(item.id);
+                          }
+                        }}
+                        className="p-3 flex-1 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
+                      >
+                        <FontAwesomeIcon icon={faTrashCan} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -3,12 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\EventRequest;
-use App\Models\ActivityLog;
 use App\Models\WeddingEvent;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use function Illuminate\Support\now;
 
 class WeddingEventController extends Controller
 {
@@ -128,5 +126,59 @@ class WeddingEventController extends Controller
             "message" => "Lấy thông tin chi tiết sự kiện thành công!",
             'data' => $weddingEvent,
         ]);
+    }
+
+    // Xóa sự kiện 
+    public function destroy(Request $request, $eventId)
+    {
+        try {
+            // Lấy thông tin id người xóa 
+            $userId = $request->user()->id;
+
+            // Tìm bản ghi cần xóa 
+            $weddingEvent = WeddingEvent::findOrFail($eventId);
+
+            if ($weddingEvent->user_id !== $userId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bạn không có quyền xóa sự kiện này!',
+
+                ], 403);
+            }
+
+            // Xóa ảnh bìa
+            if ($weddingEvent->cover_image) {
+                Storage::disk('public')->delete('weddingevents/covers/' . $weddingEvent->cover_image);
+            }
+
+            // Xóa album ảnh 
+            if ($weddingEvent->album_image) {
+                $album = is_array($weddingEvent->album_image) ? $weddingEvent->album_image : json_decode($weddingEvent->album_image, true);
+                if (is_array($album)) {
+                    foreach ($album as $image) {
+
+                        Storage::disk('public')->delete('weddingevents/albums/' . $image);
+                    }
+                }
+            }
+
+            // Xóa QR ngân hàng
+            if ($weddingEvent->qr_code_bank) {
+                Storage::disk('public')->delete('weddingevents/qrcode/' . $weddingEvent->qr_code_bank);
+            }
+
+            // Xóa sự kiện
+            $weddingEvent->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa sự kiện thành công!',
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => "Lỗi hệ thống" . $th->getMessage(),
+            ], 500);
+        }
     }
 }

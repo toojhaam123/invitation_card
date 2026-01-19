@@ -37,10 +37,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/events', [WeddingEventController::class, 'storeOrUpdate']);
         Route::get('/events', [WeddingEventController::class, 'index']);          // Xem danh sách thiệp của tôi
         Route::get('/events/{eventId}', [WeddingEventController::class, 'show']); // Lấy chi tiết sự kiện để chỉnh sửa
+        Route::delete('/delete/wedding-event/{eventId}', [WeddingEventController::class, 'destroy']);
 
         // Quản lý thiệp mời
         Route::post('event/invitations/{weddingSlug}', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
         Route::get('event/invitations/{weddingSlug}', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
+        Route::delete('delete/invitation/{invitationId}', [InvitationController::class, 'destroy']);
 
         // Xem lịch sử truy cập của thiệp
         Route::get('/invitations/{id}/logs', [ActivityLogController::class, 'getLogsByInvitation']);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { publicApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "../components/LoadingState";
@@ -8,7 +8,6 @@ import {
   faPhone,
   faQrcode,
   faEnvelopeOpenText,
-  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../hooks/me";
 
@@ -18,8 +17,7 @@ const GuestInvitation = () => {
   const location = useLocation();
   const previewEventData = location.state?.previewEventData;
   const isPreview = Boolean(previewEventData);
-  const navigate = useNavigate();
-  console.log("form preview: ", previewEventData);
+  // console.log("form preview: ", previewEventData);
 
   const { weddingSlug, guestNameSlug } = useParams();
   const [data, setData] = useState(isPreview ? previewEventData : null);
@@ -79,7 +77,6 @@ const GuestInvitation = () => {
           is_attended: statusValue,
         },
       );
-      console.log("Trạng thai: ", res.data.data.is_attended);
       setAttendanceStatus(
         res.data.data.is_attended === 1
           ? "attended"
@@ -129,7 +126,7 @@ const GuestInvitation = () => {
   };
 
   if (loading) return <LoadingState />;
-  console.log("Data: ", data);
+  // console.log("Data: ", data);
   if (!isPreview) {
     if (!data || !data.wedding_event) return <ErrorState />;
   }
@@ -182,21 +179,9 @@ const GuestInvitation = () => {
         </div>
       ) : (
         /* --- TRANG NỘI DUNG CHÍNH --- */
-        <main className="relative z-10 max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] rounded-t-[3rem] my-4">
-          {/* Nút quay lại */}
-          <div className="max-w-4xl mx-auto mb-6">
-            <button
-              onClick={() => navigate(-1)}
-              className="mt-6 bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
-                              flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
-                              active:scale-95 whitespace-nowrap shrink-0"
-            >
-              <FontAwesomeIcon icon={faArrowLeft} />
-              <span className="hidden md:inline">Quay lại</span>
-            </button>
-          </div>
+        <main className="relative z-10 max-w-2xl mx-auto bg-white md:rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] md:rounded-t-[3rem] md:my-4">
           {attendanceStatus && (
-            <div className="fixed top-8 md:top-11 right-0 md:right-[29%] z-50 pointer-events-none animate-[stamp_0.5s_ease-out_forwards]">
+            <div className="fixed top-4 md:top-11 right-0 md:right-[29%] z-50 pointer-events-none animate-[stamp_0.5s_ease-out_forwards]">
               <div
                 className={`md:px-4 px-2 py-1 border-2 rounded-xl font-black text-sm md:text-xl tracking-tighter opacity-80 md:rotate-[65deg] rotate-[70deg] 
         ${
@@ -219,13 +204,13 @@ const GuestInvitation = () => {
 
           {/* Header  */}
           <section className="py-5 px-1 text-center relative">
-            <h3 className="text-xl italic text-gray-700 mb-2">
+            <h3 className="text-xl italic text-gray-600 mb-2">
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
               {isPreview ? "Khách mời mẫu" : data.guest_name}
             </h1>
-            <p className="text-lg text-gray-700 italic px-6 mb-3 leading-relaxed">
+            <p className="text-lg text-gray-600 italic px-6 mb-3 leading-relaxed">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
             </p>
 
@@ -239,14 +224,14 @@ const GuestInvitation = () => {
                       ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
                       : "../../public/anh-nen-cuoi-hang-tung.jpg"
                   }
-                  className="w-full h-full object-cover opacity-40"
+                  className="w-full h-full object-cover opacity-60"
                   alt="Background"
                 />
               </div>
 
               {/* Nội dung tên nằm trên cùng */}
               <div className="relative z-10 space-y-2">
-                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]">
+                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,1)]">
                   {wedding.groom_name}
                 </h2>
 
@@ -258,7 +243,7 @@ const GuestInvitation = () => {
                   </div>
                 </div>
 
-                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]">
+                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,1)]">
                   {wedding.bride_name}
                 </h2>
               </div>
@@ -278,7 +263,7 @@ const GuestInvitation = () => {
                   <p className="text-2xl mx-auto font-bold text-gray-800 border-2 border-red-500 rounded-full w-28 h-28 flex flex-col justify-center items-center shadow-inner bg-white leading-tight">
                     {(() => {
                       const date = new Date(wedding.event_date);
-                      let hours = date.getHours();
+                      let hours = date.getHours() - 7;
                       const minutes = date
                         .getMinutes()
                         .toString()
@@ -506,7 +491,7 @@ const GuestInvitation = () => {
                 Gửi lời chúc
               </h3>
               <p className="text-gray-500 text-lg mb-4 italic">
-                Những lời chúc tốt đẹp từ quý khác là món quà vô giá đối với
+                Những lời chúc tốt đẹp từ quý khách là món quà vô giá đối với
                 chúng mình
               </p>
 

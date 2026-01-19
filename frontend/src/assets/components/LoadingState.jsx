@@ -17,9 +17,9 @@ const LoadingState = () => {
 
       {/* Chữ Loading */}
       <div className="mt-12 text-center">
-        <h2 className="text-[#D67B8C] font-serif italic text-2xl tracking-[0.3em] animate-pulse">
+        <h3 className="text-[#D67B8C] font-serif italic text-2xl tracking-[0.3em] animate-pulse">
           Đang tải...
-        </h2>
+        </h3>
 
         {/* 3 dấu chấm chạy */}
         <div className="flex justify-center gap-2 mt-4">
@@ -29,11 +29,7 @@ const LoadingState = () => {
         </div>
       </div>
 
-      {/* Góc trang trí */}
-      <div className="fixed top-10 left-10 w-20 h-20 border-t-2 border-l-2 border-pink-100 opacity-50" />
-      <div className="fixed bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 border-pink-100 opacity-50" />
-
-      {/* CSS cho nhịp đập trái tim - Tùng thêm vào file index.css hoặc App.css nhé */}
+      {/* CSS cho nhịp đập trái tim  */}
       <style>{`
         @keyframes heartbeat {
           0% { transform: scale(1); }
