@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { publicApi } from "../api/axios";
-import Sparkles from "../components/InvitationView/Sparkles";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "../components/LoadingState";
 import {
@@ -9,25 +8,34 @@ import {
   faPhone,
   faQrcode,
   faEnvelopeOpenText,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../hooks/me";
 
 const GuestInvitation = () => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
+  const location = useLocation();
+  const previewEventData = location.state?.previewEventData;
+  const isPreview = Boolean(previewEventData);
+  const navigate = useNavigate();
+  console.log("form preview: ", previewEventData);
+
   const { weddingSlug, guestNameSlug } = useParams();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(isPreview ? previewEventData : null);
+  const [loading, setLoading] = useState(!isPreview);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
-
-  let [name, setName] = useState();
+  let [name, setName] = useState(isPreview ? "Khách mời mẫu" : null);
   const [content, setContent] = useState();
   const [guestbooks, setGuestBooks] = useState([]);
   const [error, setError] = useState();
+  const [attendanceStatus, setAttendanceStatus] = useState(null);
 
   useEffect(() => {
+    if (isPreview) return; // nếu chỉ là xem trước thì ko cần gọi API
+
     const fetchInvitation = async () => {
       try {
         const res = await publicApi.get(
@@ -36,6 +44,13 @@ const GuestInvitation = () => {
         setData(res.data.data);
         setGuestBooks(res.data.data.guestbooks);
         setName(res.data.data.guest_name);
+        setAttendanceStatus(
+          res.data.data.is_attended === 1
+            ? "attended"
+            : res.data.data.is_attended === 0
+              ? "adsent"
+              : null,
+        );
       } catch (error) {
         console.error("Lỗi tải thiệp", error?.response.data);
       } finally {
@@ -54,20 +69,32 @@ const GuestInvitation = () => {
 
   // Hàm này gọi API respond
   const handleAttendance = async (statusValue) => {
-    console.log("is_attended: ", statusValue);
+    if (isPreview) return alert("Đây chỉ là bản xem trước!");
 
     try {
       // statusValue sẽ truyền vào là 1 hoặc 0
-      await publicApi.post(`${weddingSlug}/${guestNameSlug}/respond`, {
-        is_attended: statusValue,
-      });
+      const res = await publicApi.post(
+        `${weddingSlug}/${guestNameSlug}/respond`,
+        {
+          is_attended: statusValue,
+        },
+      );
+      console.log("Trạng thai: ", res.data.data.is_attended);
+      setAttendanceStatus(
+        res.data.data.is_attended === 1
+          ? "attended"
+          : res.data.data.is_attended === 0
+            ? "adsent"
+            : null,
+      );
     } catch (error) {
-      console.error("Lỗi cập nhật!", error?.response.data);
+      console.error("Lỗi cập nhật tham gia!", error?.response.data);
     }
   };
 
   // Hàm gửi lời chúc
   const handleSendWish = async (e) => {
+    if (isPreview) return alert("Đây chỉ là bản xem trước!");
     e.preventDefault();
 
     if (!content || content.trim() === "") {
@@ -102,12 +129,13 @@ const GuestInvitation = () => {
   };
 
   if (loading) return <LoadingState />;
-  if (!data || !data.wedding_event) return <ErrorState />;
-
-  const wedding = data.wedding_event;
-  console.log("data: ", data);
-
+  console.log("Data: ", data);
+  if (!isPreview) {
+    if (!data || !data.wedding_event) return <ErrorState />;
+  }
+  const wedding = isPreview ? data : data.wedding_event;
   const logsCount = data.logs_count;
+
   return (
     <div className="min-h-screen bg-[#FFF5F7] overflow-x-hidden font-content">
       {!isOpen ? (
@@ -120,23 +148,23 @@ const GuestInvitation = () => {
           }`}
           style={{ perspective: "2000px" }} // Tạo độ sâu không gian 3D
         >
-          <div className="relative w-full max-w-md h-[85vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
+          <div className="relative w-full max-w-2xl h-[100vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
             <img
               src={
                 wedding.cover_image
                   ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
-                  : "https://images.pexels.com/photos/2253879/pexels-photo-2253879.jpeg"
+                  : "../../public/anh-nen-cuoi-hang-tung.jpg"
               }
               className="absolute inset-0 w-full h-full object-cover"
               alt="Cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col items-center justify-end text-white p-8 pb-8 text-center">
+            <div className="w-full absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col items-center justify-end text-white md:px-32 p-1 pb-8 text-center">
               <div className="bg-white/10 backdrop-blur-md p-5 rounded-[2.5rem] border border-white/20 w-full animate-[fadeInUp_1s_ease-out]">
                 <p className="uppercase tracking-[0.4em] text-[10px] mb-2 opacity-90 font-sans">
                   Trân trọng kính mời
                 </p>
                 <h1 className="text-2xl font-bold mb-4 drop-shadow-lg">
-                  {data.guest_name}
+                  {isPreview ? "Khách mời mẫu" : data.guest_name}
                 </h1>
                 <button
                   onClick={handleOpenInvitation}
@@ -155,36 +183,85 @@ const GuestInvitation = () => {
       ) : (
         /* --- TRANG NỘI DUNG CHÍNH --- */
         <main className="relative z-10 max-w-2xl mx-auto bg-white rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] rounded-t-[3rem] my-4">
-          <Sparkles />
+          {/* Nút quay lại */}
+          <div className="max-w-4xl mx-auto mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="mt-6 bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
+                              flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+                              active:scale-95 whitespace-nowrap shrink-0"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              <span className="hidden md:inline">Quay lại</span>
+            </button>
+          </div>
+          {attendanceStatus && (
+            <div className="fixed top-8 md:top-11 right-0 md:right-[29%] z-50 pointer-events-none animate-[stamp_0.5s_ease-out_forwards]">
+              <div
+                className={`md:px-4 px-2 py-1 border-2 rounded-xl font-black text-sm md:text-xl tracking-tighter opacity-80 md:rotate-[65deg] rotate-[70deg] 
+        ${
+          attendanceStatus === "attended"
+            ? "border-green-600 text-green-600 shadow-[0_0_15px_rgba(22,163,74,0.2)]"
+            : "border-red-600 text-red-600 shadow-[0_0_15px_rgba(220,38,38,0.2)]"
+        }`}
+              >
+                <div className="flex flex-col md:text-xs text-[10px] items-center">
+                  <span>
+                    {attendanceStatus === "attended"
+                      ? "Sẽ tham dự"
+                      : "Vắng mặt"}
+                  </span>
+                </div>
+                <div className="h-[2px] w-full bg-current opacity-30 md:my-0.5"></div>
+              </div>
+            </div>
+          )}
 
-          {/* Header & Avatar */}
-          <section className="py-10 px-1 text-center relative">
+          {/* Header  */}
+          <section className="py-5 px-1 text-center relative">
             <h3 className="text-xl italic text-gray-700 mb-2">
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
-              {data.guest_name}
+              {isPreview ? "Khách mời mẫu" : data.guest_name}
             </h1>
-            <p className="text-lg text-gray-700 italic px-6 mb-8 leading-relaxed">
+            <p className="text-lg text-gray-700 italic px-6 mb-3 leading-relaxed">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
             </p>
-            <div>
-              <h2 className="font-title text-6xl md:text-8xl text-pink-600">
-                {wedding.groom_name}
-              </h2>
-              {/* Trái tim */}
-              <div className="relative mb-3 flex items-center justify-center">
-                <div className="absolute w-16 h-16 bg-pink-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
-                <div className="relative text-5xl md:text-6xl text-pink-500 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)] animate-wedding-heart">
-                  <FontAwesomeIcon icon={faHeart} />
-                  <div className="absolute -top-1 -right-1 text-yellow-200 text-xs animate-ping">
-                    <FontAwesomeIcon icon={faHeart} className="text-[10px]" />
+
+            {/* KHUNG ẢNH BAO QUANH TÊN CÔ DÂU CHÚ RỂ */}
+            <div className="relative md:py-12 py-6 md:mx-2 rounded-[2rem] overflow-hidden shadow-inner border-4 border-white">
+              {/* Ảnh nền cô dâu chú rẻ */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={
+                    wedding.cover_image
+                      ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
+                      : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                  }
+                  className="w-full h-full object-cover opacity-40"
+                  alt="Background"
+                />
+              </div>
+
+              {/* Nội dung tên nằm trên cùng */}
+              <div className="relative z-10 space-y-2">
+                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]">
+                  {wedding.groom_name}
+                </h2>
+
+                {/* Trái tim giữa */}
+                <div className="relative flex items-center justify-center py-2">
+                  <div className="absolute w-14 h-14 bg-pink-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
+                  <div className="relative text-5xl text-pink-500 drop-shadow-[0_0_15px_rgba(236,72,153,0.8)] animate-wedding-heart">
+                    <FontAwesomeIcon icon={faHeart} />
                   </div>
                 </div>
+
+                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)]">
+                  {wedding.bride_name}
+                </h2>
               </div>
-              <h2 className="font-title text-6xl md:text-8xl text-pink-600">
-                {wedding.bride_name}
-              </h2>
             </div>
           </section>
 
@@ -195,19 +272,49 @@ const GuestInvitation = () => {
                 Thời gian lễ cưới
               </h3>
               <div className="space-y-3">
-                <p className="text-4xl mx-auto font-bold text-gray-800 border-2 mt-3 border-red-500 rounded-full w-28 h-28 flex justify-center items-center shadow-inner bg-white pb-3">
-                  {new Date(wedding.event_date).toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p className="text-2xl text-gray-700 uppercase font-bold capitalize px-2text-xl font-bold text-gray-800 mb-5 capitalize uppercase px-2 leading-tight ">
-                  {new Date(wedding.event_date).toLocaleDateString("vi-VN", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                <div className="flex flex-col items-center">
+                  {/* Chữ "Hồi" nhỏ phía trên */}
+
+                  <p className="text-2xl mx-auto font-bold text-gray-800 border-2 border-red-500 rounded-full w-28 h-28 flex flex-col justify-center items-center shadow-inner bg-white leading-tight">
+                    {(() => {
+                      const date = new Date(wedding.event_date);
+                      let hours = date.getHours();
+                      const minutes = date
+                        .getMinutes()
+                        .toString()
+                        .padStart(2, "0");
+                      const period = hours >= 12 ? "Chiều" : "Sáng";
+                      const hourStr = hours.toString().padStart(2, "0");
+
+                      return (
+                        <>
+                          <span className="text-sm uppercase font-bold text-gray-500 z-10">
+                            Hồi
+                          </span>
+                          <span className="text-3xl font-black text-red-500 tracking-tighter tabular-nums">
+                            {hourStr}:{minutes}
+                          </span>
+                          <span className="text-sm uppercase text-gray-500 mt-2">
+                            {period}
+                          </span>
+                        </>
+                      );
+                    })()}
+                  </p>
+                </div>
+                {/* Thứ ngày, tháng, năm */}
+                <p className="text-xl font-bold text-gray-800 mb-5 capitalize px-2 leading-tight">
+                  {(() => {
+                    const date = new Date(wedding.event_date);
+                    const weekday = date.toLocaleDateString("vi-VN", {
+                      weekday: "long",
+                    });
+                    const day = date.getDate();
+                    const month = date.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
+                    const year = date.getFullYear();
+
+                    return `${weekday}, ngày ${day}, tháng ${month}, năm ${year}`;
+                  })()}
                 </p>
                 <p className="text-pink-400 font-medium italic fonlt-bold">
                   (Tức ngày {wedding.lunar_date})
@@ -298,6 +405,7 @@ const GuestInvitation = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
               {/* Nút Sẽ tham gia */}
               <button
+                disabled={isPreview}
                 onClick={() => {
                   handleAttendance(1);
                   alert("Cảm ơn quý khác đã xác nhận tham dự! ❤️");
@@ -314,6 +422,7 @@ const GuestInvitation = () => {
 
               {/* Nút Không tham gia */}
               <button
+                disabled={isPreview}
                 onClick={() => {
                   handleAttendance(0);
                   alert(
@@ -411,6 +520,7 @@ const GuestInvitation = () => {
                   </span>
                 )}
                 <textarea
+                  disabled={isPreview}
                   placeholder={`Mời ${name} nhập lời chúc tại đây...`}
                   name="content"
                   value={content}
@@ -422,6 +532,7 @@ const GuestInvitation = () => {
                 ></textarea>
 
                 <button
+                  disabled={isPreview}
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-pink-200 transition-all active:scale-95"
                 >
@@ -577,26 +688,37 @@ const GuestInvitation = () => {
           animation: wedding-heart 2s ease-in-out infinite;
         }
 
-      /* Hiệu ứng xuất hiện từ dưới lên */
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
+        /* Hiệu ứng xuất hiện từ dưới lên */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
 
-      /* Hiệu ứng hiện dần */
-      @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-      }
+        /* Hiệu ứng hiện dần */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
 
-      /* Ẩn thanh cuộn cho album ảnh ngang */
-      .scrollbar-hide::-webkit-scrollbar {
-        display: none;
-      }
-      .scrollbar-hide {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+        /* Ẩn thanh cuộn cho album ảnh ngang */
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+
+        @keyframes stamp {
+          0% {
+            opacity: 0;
+            transform: scale(3) rotate(0deg);
+          }
+          100% {
+            opacity: 0.8;
+            transform: scale(1) rotate(-20deg);
+          }
+        }
     `}</style>
     </div>
   );

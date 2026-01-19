@@ -36,6 +36,7 @@ Route::prefix('v1')->group(function () {
         // Quản lý sự kiện 
         Route::post('/events', [WeddingEventController::class, 'storeOrUpdate']);
         Route::get('/events', [WeddingEventController::class, 'index']);          // Xem danh sách thiệp của tôi
+        Route::get('/events/{eventId}', [WeddingEventController::class, 'show']); // Lấy chi tiết sự kiện để chỉnh sửa
 
         // Quản lý thiệp mời
         Route::post('event/invitations/{weddingSlug}', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi

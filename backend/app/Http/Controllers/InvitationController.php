@@ -143,6 +143,10 @@ class InvitationController extends Controller
             'is_attended' => $validatedData['is_attended']
         ]);
 
-        return response()->json(['message' => 'Cập nhật thành công!']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Cập nhật thành công!',
+            'data' => $invitation,
+        ]);
     }
 }

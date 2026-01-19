@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import LoadingState from "../components/LoadingState";
 import useAuth from "../hooks/me";
 import {
   faPlus,
@@ -10,9 +11,11 @@ import {
   faLink,
   faTrashCan,
   faCalendarDays,
+  faArrowLeft,
 } from "@fortawesome/free-solid-svg-icons";
 
 const InvitationList = () => {
+  const navigate = useNavigate();
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const { weddingSlug } = useParams();
@@ -38,9 +41,34 @@ const InvitationList = () => {
     return alert("Tính năng xóa sẽ cập nhật sau nhé!", id);
   };
 
+  if (loading) return <LoadingState></LoadingState>;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Header */}
+      <div className="max-w-4xl mx-auto mb-8 flex items-center justify-between gap-3 px-2">
+        {/* Nút Quay lại - Thêm whitespace-nowrap để chữ không bị xuống dòng bên trong nút */}
+        <button
+          onClick={() => navigate(-1)}
+          className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
+    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+    active:scale-95 whitespace-nowrap shrink-0"
+        >
+          <FontAwesomeIcon icon={faArrowLeft} />
+          <span className="hidden md:inline">Quay lại</span>
+        </button>
+
+        {/* Nút Tạo thiệp mới - shrink-0 để không bị ép co lại */}
+        <Link
+          to={`/${weddingSlug}/create-invitation`}
+          className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] group hover:to-[#a83a55] text-white hover:text-white px-4 md:px-6 py-2.5 rounded-full 
+    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+    active:scale-95 whitespace-nowrap shrink-0"
+        >
+          <FontAwesomeIcon icon={faPlus} />
+          <span className="font-bold tracking-wide">Tạo thiệp mới</span>
+        </Link>
+      </div>
       <div className="max-w-4xl mx-auto flex justify-between items-end mb-5">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 text-start">
@@ -52,22 +80,11 @@ const InvitationList = () => {
             </p>
           </div>
         </div>
-        <Link
-          to={`/${weddingSlug}/create-invitation`}
-          className="bg-[#c94b6a] hover:bg-[#a83a55] items-end text-white text-center hover:text-white transition duration-500 px-2 py-3 shrink-0 rounded-lg flex items-center gap-2 transition-all shadow-md"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-          Tạo thiệp mới
-        </Link>
       </div>
 
       {/* Danh sách thiệp */}
       <div className="max-w-4xl mx-auto">
-        {loading ? (
-          <div className="text-center py-20 text-gray-400">
-            Đang tải danh sách...
-          </div>
-        ) : invitations.length > 0 ? (
+        {invitations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {invitations.map((item) => (
               <div
@@ -80,7 +97,7 @@ const InvitationList = () => {
                     src={
                       item?.wedding_event?.cover_image
                         ? `http://localhost:8000/storage/weddingevents/covers/${item?.wedding_event?.cover_image}`
-                        : "https://via.placeholder.com/400x200?text=Wedding+Invitation"
+                        : "../../public/anh-nen-cuoi-hang-tung.jpg"
                     }
                     alt="Cover"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

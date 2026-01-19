@@ -1,11 +1,16 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom"; // Để lấy wedding_event_id từ URL
+import { useParams, useNavigate } from "react-router-dom"; // Để lấy wedding_event_id từ URL
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserPlus, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import {
+  faUserPlus,
+  faPaperPlane,
+  faArrowLeft,
+} from "@fortawesome/free-solid-svg-icons";
 import LoadingState from "../components/LoadingState";
 
 const AddInvitation = () => {
+  const navigate = useNavigate();
   const { weddingSlug } = useParams();
   const [guestName, setGuestName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,8 +39,20 @@ const AddInvitation = () => {
   if (loading) return <LoadingState></LoadingState>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-0 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-2 lg:px-8">
+      <div className="max-w-4xl mx-auto px-1">
+        {/* Nút quay lại */}
+        <div className="max-w-4xl mx-auto mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
+    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+    active:scale-95 whitespace-nowrap shrink-0"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} />
+            <span className="hidden md:inline">Quay lại</span>
+          </button>
+        </div>
         <h3 className="text-[#c94b6a] font-bold text-3xl mb-4 flex items-center">
           <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> Thêm Khách Mời
         </h3>

@@ -25,9 +25,9 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-[#c94b6a] text-center mb-6">
+        <h3 className="text-3xl font-bold text-[#c94b6a] text-center mb-6">
           Đăng nhập
-        </h2>
+        </h3>
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
@@ -48,10 +48,12 @@ const Login = () => {
           <button className="w-full mb-8 bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]">
             Đăng nhập
           </button>
-          <Link to="/register" className="mt-10">
-            Đã có tài khoản
-          </Link>
         </form>
+        <p className="mt-4 text-sm text-blue-500 text-center">
+          <Link to="/register" className="">
+            Chưa có tài khoản
+          </Link>
+        </p>
       </div>
     </div>
   );

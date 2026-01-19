@@ -19,7 +19,7 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       alert(
-        "Lỗi đăng ký: " + (error.response?.data?.message || "Vui lòng thử lại")
+        "Lỗi đăng ký: " + (error.response?.data?.message || "Vui lòng thử lại"),
       );
     }
   };
@@ -27,9 +27,9 @@ const Register = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-bold text-[#c94b6a] text-center mb-6">
+        <h3 className="text-3xl font-bold text-[#c94b6a] text-center mb-6">
           Đăng ký
-        </h2>
+        </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"

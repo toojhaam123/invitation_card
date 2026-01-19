@@ -116,4 +116,17 @@ class WeddingEventController extends Controller
             ], 500);
         }
     }
+
+    // Lấy chi tiết sự kiện 
+    public function show(Request $request, $eventId)
+    {
+        // Tìm sự kiện cần chỉnh sửa 
+        $weddingEvent = WeddingEvent::where('id', $eventId)->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            "message" => "Lấy thông tin chi tiết sự kiện thành công!",
+            'data' => $weddingEvent,
+        ]);
+    }
 }

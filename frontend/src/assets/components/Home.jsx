@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelopeOpenText } from "@fortawesome/free-solid-svg-icons";
 import LoadingState from "./LoadingState";
 import useAuth from "../hooks/me";
 import {
@@ -9,6 +10,8 @@ import {
   faUsers,
   faEllipsisV,
   faCalendarDays,
+  faEdit,
+  faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
 
 const EventDashboard = () => {
@@ -18,6 +21,8 @@ const EventDashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const [showMenu, setShowMenu] = useState(null); // Lưu ID của sự kiện đang mở menu
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -32,27 +37,57 @@ const EventDashboard = () => {
     fetchEvents();
   }, []);
 
+  // Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "/login"; // Đẩy về trang login và xóa sạch trạng thái
   };
 
+  // Delete
+  const handleDelete = () => {
+    alert("Sẽ thêm tính năng xóa sau!");
+  };
   if (loading) return <LoadingState></LoadingState>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-red-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Header Dashboard */}
-      <div className="max-w-4xl mb-6 flex">
-        {!token ? (
-          <button>
-            <Link to="/login">Đăng nhập</Link>
-          </button>
-        ) : (
-          <button className="" onClick={handleLogout}>
-            Đăng xuất
-          </button>
-        )}
+      <div className="max-w-4xl mx-auto mb-4 flex items-center justify-between gap-2 md:gap-4 px-2">
+        {/* Cụm Đăng nhập / Đăng xuất */}
+        <div className="shrink-0">
+          {!token ? (
+            <Link
+              to="/login"
+              className="px-4 md:px-6 py-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 active:scale-95 whitespace-nowrap text-sm md:text-base"
+            >
+              <FontAwesomeIcon
+                icon={faEnvelopeOpenText}
+                className="text-[10px] md:text-xs"
+              />
+              Đăng nhập
+            </Link>
+          ) : (
+            <button
+              onClick={handleLogout}
+              className="px-4 md:px-6 py-2 bg-white text-gray-700 font-semibold border-2 border-pink-100 rounded-full hover:bg-pink-50 transition-all duration-300 shadow-sm flex items-center gap-2 active:scale-95 whitespace-nowrap text-sm md:text-base"
+            >
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse shrink-0"></div>
+              Đăng xuất
+            </button>
+          )}
+        </div>
+
+        {/* Nút Thêm Sự Kiện */}
+        <button
+          onClick={() => navigate("/create-event")}
+          className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
+                    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+                    active:scale-95 shrink-0 whitespace-nowrap text-sm md:text-base"
+        >
+          <FontAwesomeIcon icon={faPlus} className="text-xs md:text-base" />
+          <span className="font-bold tracking-wide">Thêm Sự Kiện</span>
+        </button>
       </div>
       <div className="max-w-4xl mx-auto mb-5 flex justify-between items-end">
         <div>
@@ -61,12 +96,6 @@ const EventDashboard = () => {
             Chào {me?.name}, hôm nay bạn có bao nhiêu thiệp hồng?
           </p>
         </div>
-        <button
-          onClick={() => navigate("/create-event")}
-          className="bg-[#c94b6a] shrink-0 text-white px-2 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-pink-100 hover:bg-[#a83a55] transition-all"
-        >
-          <FontAwesomeIcon icon={faPlus} /> Thêm Sự Kiện
-        </button>
       </div>
       <div className="border-1 border max-w-4xl mx-auto mb-5"></div>
       {/* Grid Danh sách Sự kiện */}
@@ -82,7 +111,7 @@ const EventDashboard = () => {
                 src={
                   event.cover_image
                     ? `http://localhost:8000/storage/weddingevents/covers/${event.cover_image}`
-                    : "https://via.placeholder.com/400x200"
+                    : "public/anh-nen-cuoi-hang-tung.jpg"
                 }
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 alt="Wedding"
@@ -121,21 +150,76 @@ const EventDashboard = () => {
                 </span>
               </div>
 
-              {/* Nút hành động chính theo đúng ý Tùng */}
-              <div className="flex gap-3 pt-4 border-t border-gray-50">
+              {/* Nút hành động chính */}
+              <div className="flex items-center gap-3 pt-4 border-t border-gray-100 mt-auto">
+                {/* Link Quản lý - Thêm whitespace-nowrap để chữ không bị xuống dòng */}
                 <Link
                   to={`/${event.slug}/`}
-                  className="flex-1 bg-gray-900 text-white p-3 rounded-2xl text-center text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-md"
+                  className="flex-1 bg-gray-900 text-white p-3 rounded-2xl text-center text-sm font-bold flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-md whitespace-nowrap"
                 >
-                  <FontAwesomeIcon icon={faUsers} /> Quản lý khách mời
+                  <FontAwesomeIcon icon={faUsers} className="text-xs" />
+                  <span>Quản lý khách</span>
                 </Link>
 
-                <button
-                  onClick={() => navigate(`/events/edit/${event.id}`)}
-                  className="w-12 h-12 shrink-0 bg-gray-50 text-gray-400 rounded-2xl flex items-center justify-center hover:bg-pink-50 hover:text-[#c94b6a] transition-all border border-gray-100"
-                >
-                  <FontAwesomeIcon icon={faEllipsisV} />
-                </button>
+                {/* Cụm Dropdown Menu */}
+                <div className="relative shrink-0">
+                  <button
+                    onClick={() =>
+                      setShowMenu(showMenu === event.id ? null : event.id)
+                    }
+                    className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all border ${
+                      showMenu === event.id
+                        ? "bg-pink-50 text-[#c94b6a] border-pink-200"
+                        : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-pink-50 hover:text-[#c94b6a]"
+                    }`}
+                  >
+                    <FontAwesomeIcon icon={faEllipsisV} />
+                  </button>
+
+                  {showMenu === event.id && (
+                    <>
+                      {/* Lớp phủ full màn hình để đóng menu khi bấm ra ngoài */}
+                      <div
+                        className="fixed inset-0 z-[60]"
+                        onClick={() => setShowMenu(null)}
+                      ></div>
+
+                      {/* Menu nội dung - Chỉnh lại tọa độ và z-index */}
+                      <div className="absolute right-0 bottom-full mb-2 w-44 bg-white rounded-2xl shadow-[0_10px_25px_rgba(0,0,0,0.1)] border border-gray-100 z-[70] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+                        <button
+                          onClick={() => {
+                            if (
+                              window.confirm(
+                                "Bạn có chắc chắn muốn xóa sự kiện này?",
+                              )
+                            )
+                              handleDelete(event.id);
+                            setShowMenu(null);
+                          }}
+                          className="w-full px-4 py-3 text-left text-sm text-red-500 hover:text-red-400 
+                          hover:bg-gray-900 flex items-center gap-3 transition-colors border-t border-gray-50"
+                        >
+                          <FontAwesomeIcon icon={faTrashAlt} className="" />
+                          <span className="font-semibold">Xóa sự kiện</span>
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            navigate(`/edit-event/${event.id}`);
+                            setShowMenu(null);
+                          }}
+                          className="w-full px-4 py-3 group text-left text-sm text-gray-100 hover:bg-gray-900 hover:text-gray-400 flex items-center gap-3 transition-colors"
+                        >
+                          <FontAwesomeIcon
+                            icon={faEdit}
+                            className="text-gray-100"
+                          />
+                          <span className="font-semibold">Chỉnh sửa</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
