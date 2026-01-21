@@ -28,7 +28,7 @@ const EventDashboard = () => {
         const res = await privateApi.get("/events");
         setEvents(res.data.data);
       } catch (error) {
-        console.error("Lỗi lấy danh sách sự kiện: ", error?.response.data);
+        console.error("Lỗi lấy danh sách sự kiện: ", error?.response?.data);
       } finally {
         setLoading(false);
       }
@@ -37,10 +37,20 @@ const EventDashboard = () => {
   }, []);
 
   // Logout
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "/login"; // Đẩy về trang login và xóa sạch trạng thái
+  const handleLogout = async () => {
+    setLoading(true);
+
+    try {
+      await privateApi.post("/logout");
+      localStorage.removeItem("token");
+      alert("Đã đăng xuất thành công");
+      window.location.href = "/login"; // Đẩy về trang login và xóa sạch trạng thái
+    } catch (error) {
+      console.log("Có lỗi khi đăng xuất: ", error?.response?.data);
+    } finally {
+      setLoading(true);
+      localStorage.removeItem("user");
+    }
   };
 
   // Delete
@@ -166,7 +176,7 @@ const EventDashboard = () => {
               <div className="flex items-center gap-2 pt-4 border-t border-gray-100 mt-auto">
                 {/* Nút Quản lý khách - Chiếm phần lớn diện tích */}
                 <Link
-                  to={`/${event.slug}/`}
+                  to={`/${event.slug}`}
                   className="flex-[3] bg-[#c94b6a] text-white p-3 rounded-xl text-center text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#a83a55] transition-all shadow-sm active:scale-95 whitespace-nowrap"
                 >
                   <FontAwesomeIcon icon={faUsers} />

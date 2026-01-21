@@ -13,7 +13,7 @@ const Login = () => {
       const res = await publicApi.post("/login", { email, password });
       // LƯU TOKEN VÀO LOCALSTORAGE
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      // localStorage.setItem("user", JSON.stringify(res.data.user));
 
       navigate("/"); // Về trang chủ quản lý thiệp
       window.location.reload(); // Reload để privateApi cập nhật token mới

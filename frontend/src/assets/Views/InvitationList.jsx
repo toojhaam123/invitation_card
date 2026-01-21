@@ -26,7 +26,7 @@ const InvitationList = () => {
       try {
         const res = await privateApi.get(`event/invitations/${weddingSlug}`); // API lấy danh sách thiệp của user
         setInvitations(res.data.data);
-        console.log("Danh sách Thiệp: ", res.data.data);
+        // console.log("Danh sách Thiệp: ", res.data.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách thiệp", error.response?.data);
       } finally {
@@ -43,7 +43,9 @@ const InvitationList = () => {
       const res = await privateApi.delete(`delete/invitation/${invitationId}`);
 
       if (res.data.success) {
-        setInvitations((prev) => prev.filter(invitations?.id !== invitationId));
+        setInvitations((prev) =>
+          prev?.filter((invitations) => invitations?.id !== invitationId),
+        );
         alert("Xóa thiệp mời thành công!");
       }
     } catch (e) {
@@ -176,7 +178,7 @@ const InvitationList = () => {
                     <div className="flex flex-[1] gap-2">
                       {/* Nút Sửa */}
                       <Link
-                        to={`/edit/${item.id}`}
+                        to={`/${weddingSlug}/${item.slug}/edit-invitation/${item.id}`}
                         className="p-3 flex-1 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-blue-600 transition-all active:scale-90 flex items-center justify-center"
                       >
                         <FontAwesomeIcon icon={faEdit} />

@@ -47,6 +47,6 @@ class WeddingEvent extends Model
     // Một sự kiện có nhiều thiệp mời
     public function invitations(): HasMany
     {
-        return $this->hasMany(Invitation::class);
+        return $this->hasMany(Invitation::class, "wedding_event_slug", 'slug');
     }
 }

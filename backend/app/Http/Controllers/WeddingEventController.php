@@ -129,14 +129,14 @@ class WeddingEventController extends Controller
     }
 
     // Xóa sự kiện 
-    public function destroy(Request $request, $eventId)
+    public function destroy(Request $request, $weddingEventId)
     {
         try {
             // Lấy thông tin id người xóa 
             $userId = $request->user()->id;
 
             // Tìm bản ghi cần xóa 
-            $weddingEvent = WeddingEvent::findOrFail($eventId);
+            $weddingEvent = WeddingEvent::with('invitations')->findOrFail($weddingEventId);
 
             if ($weddingEvent->user_id !== $userId) {
                 return response()->json([
@@ -145,6 +145,12 @@ class WeddingEventController extends Controller
 
                 ], 403);
             }
+
+            // Lấy danh sách ID của tất cả thiệp mời thuộc sự kiện này
+            $invitationIds = $weddingEvent->invitations->pluck('id');
+
+            // Xóa thiệp mời
+            $weddingEvent->invitations()->delete();
 
             // Xóa ảnh bìa
             if ($weddingEvent->cover_image) {

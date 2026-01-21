@@ -201,16 +201,19 @@ const GuestInvitation = () => {
               </div>
             </div>
           )}
-
+          {/* Bông nơ trang trí  */}
+          <div className="absolute z-[100] left md:top-8 md:left-8 transform w-20 -scale-x-100">
+            <img src="../public/no.png" alt="" />
+          </div>
           {/* Header  */}
           <section className="py-5 px-1 text-center relative">
-            <h3 className="text-xl italic text-gray-600 mb-2">
+            <h3 className="text-xl uppercase text-gray-600 mb-2">
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
               {isPreview ? "Khách mời mẫu" : data.guest_name}
             </h1>
-            <p className="text-lg text-gray-600 italic px-6 mb-3 leading-relaxed">
+            <p className="text-gray-600 text-xl mb-6 italic px-4">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
             </p>
 
@@ -248,6 +251,12 @@ const GuestInvitation = () => {
                 </h2>
               </div>
             </div>
+            <div className="absolute z-0  transform w-20 -scale-x-100 bottom-0 -rotate-[90deg] ">
+              <img src="../public/no.png" alt="" />
+            </div>
+            <div className="absolute z-0  transform w-20 bottom-0 right-0 rotate-[90deg] me-1 ">
+              <img src="../public/no.png" alt="" />
+            </div>
           </section>
 
           {/* Thời gian & Địa điểm */}
@@ -258,26 +267,36 @@ const GuestInvitation = () => {
               </h3>
               <div className="space-y-3">
                 <div className="flex flex-col items-center">
-                  {/* Chữ "Hồi" nhỏ phía trên */}
-
-                  <p className="text-2xl mx-auto font-bold text-gray-800 border-2 border-red-500 rounded-full w-28 h-28 flex flex-col justify-center items-center shadow-inner bg-white leading-tight">
+                  <p
+                    className="text-xl mt-4 md:text-2xl mx-auto font-bold text-gray-800 border-2 border-red-500 rounded-full 
+                                w-24 h-24 md:w-32 md:h-32 
+                                flex flex-col justify-center items-center shadow-inner bg-white leading-tight transition-all"
+                  >
                     {(() => {
-                      const date = new Date(wedding.event_date);
-                      let hours = date.getHours() - 7;
-                      const minutes = date
-                        .getMinutes()
-                        .toString()
-                        .padStart(2, "0");
-                      const period = hours >= 12 ? "Chiều" : "Sáng";
-                      const hourStr = hours.toString().padStart(2, "0");
+                      if (!wedding || !wedding.event_date) {
+                        return <span className="text-gray-400">--:--</span>;
+                      }
+                      const parts = wedding?.event_date.split("T");
+                      const timePart = parts[1]; // 10:00:00
+                      const [h, m] = timePart.split(":");
+                      const hours = parseInt(h);
+                      const minutes = m;
+
+                      let period = "Sáng";
+                      if (hours >= 12 && period < 18) {
+                        period = "Chiều";
+                      } else if (hours >= 18) {
+                        period = "Tối";
+                      }
 
                       return (
                         <>
+                          {/* Chữ "Hồi" nhỏ phía trên */}
                           <span className="text-sm uppercase font-bold text-gray-500 z-10">
                             Hồi
                           </span>
-                          <span className="text-3xl font-black text-red-500 tracking-tighter tabular-nums">
-                            {hourStr}:{minutes}
+                          <span className="text-3xl font-black text-red-600 tracking-tighter tabular-nums">
+                            {hours}:{minutes}
                           </span>
                           <span className="text-sm uppercase text-gray-500 mt-2">
                             {period}
@@ -288,7 +307,7 @@ const GuestInvitation = () => {
                   </p>
                 </div>
                 {/* Thứ ngày, tháng, năm */}
-                <p className="text-xl font-bold text-gray-800 mb-5 capitalize px-2 leading-tight">
+                <div className="text-2xl font-bold text-gray-800 mb-5 capitalize md:px-2 leading-tight">
                   {(() => {
                     const date = new Date(wedding.event_date);
                     const weekday = date.toLocaleDateString("vi-VN", {
@@ -298,9 +317,51 @@ const GuestInvitation = () => {
                     const month = date.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
                     const year = date.getFullYear();
 
-                    return `${weekday}, ngày ${day}, tháng ${month}, năm ${year}`;
+                    return (
+                      <div className="flex items-center justify-center">
+                        {/* Cột 1: Thứ */}
+                        <div className="flex-1 text-center">
+                          <p>{weekday}</p>
+                        </div>
+
+                        {/* Thanh ngăn cách 1 */}
+                        <div className="h-12 md:w-[2px] w-[1.5px] bg-red-500 mx-2 md:mx-4"></div>
+
+                        {/* Cột 2: Ngày & Tháng (Trung tâm) */}
+                        <div className="flex-1 text-center flex flex-col items-center">
+                          <p>
+                            Ngày{" "}
+                            <span className="text-3xl md:text-3xl font-black text-red-600 leading-none">
+                              {day}
+                            </span>
+                          </p>
+                          <div className="w-full h-[1px] bg-red-500 mt-1"></div>
+                          <p>
+                            Tháng{" "}
+                            <span className="text-3xl md:text-3xl font-black text-red-600 leading-none">
+                              {month}
+                            </span>{" "}
+                          </p>
+                        </div>
+
+                        {/* Thanh ngăn cách 2 */}
+                        <div className="h-12 md:w-[2px] w-[1.5px] bg-red-500 mx-2 md:mx-4"></div>
+
+                        {/* Cột 3: Năm */}
+                        <div className="flex-1 text-center">
+                          <p>
+                            Năm{" "}
+                            <span className="text-3xl md:text-3xl font-black text-red-600 leading-none">
+                              {year}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    );
+
+                    // `${weekday}, ngày ${day}, tháng ${month}, năm ${year}`;
                   })()}
-                </p>
+                </div>
                 <p className="text-pink-400 font-medium italic fonlt-bold">
                   (Tức ngày {wedding.lunar_date})
                 </p>
@@ -369,7 +430,7 @@ const GuestInvitation = () => {
                 </p>
               </div>
             </div>
-            <p className="text-2xl font-title text-pink-600 italic px-6 leading-relaxed mt-6 animate-bounce">
+            <p className="text-3xl font-title text-pink-600 italic px-6 leading-relaxed mt-6 animate-bounce">
               Sự hiện diện của quý khách là niềm hạnh phúc đối với chúng tôi!
             </p>
           </section>
@@ -382,7 +443,7 @@ const GuestInvitation = () => {
             <h3 className="font-title text-4xl text-pink-600 mb-2 italic">
               Xác nhận tham dự
             </h3>
-            <p className="text-gray-600 text-lg mb-6 italic px-4">
+            <p className="text-gray-600 text-xl mb-6 italic px-4">
               Để việc đón tiếp được chu đáo, rất mong nhận được sự phản hồi từ
               quý khách!
             </p>
@@ -490,7 +551,7 @@ const GuestInvitation = () => {
               <h3 className="font-title text-4xl text-pink-600 mb-2 italic">
                 Gửi lời chúc
               </h3>
-              <p className="text-gray-500 text-lg mb-4 italic">
+              <p className="text-gray-600 text-xl mb-6 italic px-4">
                 Những lời chúc tốt đẹp từ quý khách là món quà vô giá đối với
                 chúng mình
               </p>
@@ -633,7 +694,7 @@ const GuestInvitation = () => {
                     </a>
                   </div>
                   <p className="mt-4 text-xs text-gray-400 italic">
-                    Liên hệ nếu bạn cần chỉ đường hoặc hỗ trợ
+                    Liên hệ nếu Quý khách cần hỗ trợ
                   </p>
                 </section>
               )}

@@ -35,7 +35,7 @@ class InvitationController extends Controller
     }
 
     // Tạo hoặc cập nhập thiêp 
-    public function storeOrUpdate(Request $request, $weddingEventSlug)
+    public function storeOrUpdate(Request $request, $weddingEventSlug,)
     {
         try {
             $user = $request->user();
@@ -65,8 +65,6 @@ class InvitationController extends Controller
             }
 
             // 5. Sử dụng updateOrCreate để lưu dữ liệu
-            // Mảng 1: Điều kiện tìm kiếm
-            // Mảng 2: Dữ liệu cần cập nhật/tạo mới
             $result = Invitation::updateOrCreate(
                 [
                     'id' => $invitationId,
@@ -81,7 +79,7 @@ class InvitationController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => $invitationId ? "Cập nhật thiệp thành công!" : "Tạo thiệp thành công!",
+                'message' => $invitationId ? "Cập nhật thiệp mời thành công cho: " . $result->guest_name : "Thêm thành công thiệp mời cho: " . $result->guest_name . "!",
                 'data' => $result,
             ], $invitationId ? 200 : 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -180,5 +178,22 @@ class InvitationController extends Controller
                 'message' => "Lỗi hệ thống!" . $th->getMessage(),
             ]);
         }
+    }
+
+    // Lấy thông tin để chỉnh sửa 
+    public function showToEdit(Request $request, $weddingEventSlug, $guestNameSlug)
+
+    {
+        // Lấy id người dùng
+        $userId = $request->user()->id;
+
+        // Tìm thiệp theo slug trước
+        $invitation = Invitation::where('slug', $guestNameSlug)
+            ->where('wedding_event_slug', $weddingEventSlug)->where('user_id', $userId)->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'data' => $invitation,
+        ], 200);
     }
 }

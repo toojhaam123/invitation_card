@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('guestbooks', function (Blueprint $table) {
             $table->id();
             // Kết nối đến thiệp mời 
-            $table->string('invitation_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('invitation_id')->constrained('invitations')->onDelete('cascade');
+
             $table->string('name');
             $table->text('content');
             $table->timestamps();

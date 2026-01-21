@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('invitations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('wedding_event_slug')->required();
             $table->string('guest_name')->required();
             $table->string('slug')->unique();

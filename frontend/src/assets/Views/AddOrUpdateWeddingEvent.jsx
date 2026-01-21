@@ -514,16 +514,18 @@ const AddOrUpdateWeddingEvent = () => {
             />
             Thông tin sẽ được mã hóa bảo mật
           </div>
-          <Link
-            to="/previewEvent"
-            state={{
-              previewEventData: formData,
-              isPreview: true,
-            }}
+          <button
+            type="button"
+            // onClick={alert("Tính năng đang trong quá trình hoàn thiện!")}
+            // to="/previewEvent"
+            // state={{
+            //   previewEventData: formData,
+            //   isPreview: true,
+            // }}
             className="text-pink-600 font-bold hover:underline"
           >
             Xem trước
-          </Link>
+          </button>
           <div className="flex items-center gap-3 w-full md:w-auto mt-">
             {/* Nút Hủy bỏ - Dùng Border mỏng thay vì bóng đổ để tạo sự tương phản */}
             <button

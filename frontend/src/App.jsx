@@ -6,8 +6,8 @@ import Login from "./assets/Views/Login";
 import Register from "./assets/Views/Register";
 import AddOrUpdateWeddingEvent from "./assets/Views/AddOrUpdateWeddingEvent";
 import InvitationList from "./assets/Views/InvitationList";
-import AddInvitation from "./assets/Views/AddInvitation";
 import ProtectRoute from "./assets/components/ProtectRoute";
+import AddOrUpdateInvitation from "./assets/Views/AddOrUpdateInvitation";
 function App() {
   return (
     <div className="app-container overflow-x-hidden dark:bg-black bg-white font-sans">
@@ -51,7 +51,7 @@ function App() {
           path="/:weddingSlug/create-invitation"
           element={
             <ProtectRoute>
-              <AddInvitation />
+              <AddOrUpdateInvitation />
             </ProtectRoute>
           }
         />
@@ -59,8 +59,16 @@ function App() {
         <Route
           path="/:weddingSlug/:guestNameSlug"
           element={<GuestInvitation />}
-        ></Route>
-
+        />
+        {/* Chỉnh sửa thiệp */}
+        <Route
+          path="/:weddingSlug/:guestNameSlug/edit-invitation/:invitationId"
+          element={
+            <ProtectRoute>
+              <AddOrUpdateInvitation />
+            </ProtectRoute>
+          }
+        />
         {/* Danh sách các thiệp */}
         <Route
           path="/:weddingSlug"

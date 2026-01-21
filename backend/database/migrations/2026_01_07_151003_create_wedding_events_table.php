@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('wedding_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();  // Người tạo thiệp để quản lý thiệp của mình
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');  // Người tạo thiệp để quản lý thiệp của mình
             $table->string('slug')->unique();   // Dùng để làm link thiệp
 
             // Thông tin cô dâu, chú rể

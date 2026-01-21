@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Để lấy wedding_event_id từ URL
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -9,28 +9,56 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import LoadingState from "../components/LoadingState";
 
-const AddInvitation = () => {
+const AddOrUpdateInvitation = () => {
   const navigate = useNavigate();
-  const { weddingSlug } = useParams();
+  const { weddingSlug, guestNameSlug, invitationId } = useParams();
   const [guestName, setGuestName] = useState("");
   const [loading, setLoading] = useState(false);
+  const isEditMode = Boolean(invitationId);
+
+  useEffect(() => {
+    if (isEditMode) {
+      setLoading(true);
+      const fetchInvitation = async () => {
+        try {
+          const res = await privateApi.get(
+            `${weddingSlug}/${guestNameSlug}/edit-invitation/${invitationId}`,
+          );
+          setGuestName(res.data.data.guest_name);
+        } catch (error) {
+          console.log(
+            "Lỗi khi lấy thông tin thiệp để chỉnh sửa: ",
+            error?.response?.data,
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchInvitation();
+    }
+  }, [invitationId, isEditMode]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await privateApi.post(`event/invitations/${weddingSlug}`, {
+      const res = await privateApi.post(`event/invitations/${weddingSlug}`, {
+        id: invitationId,
         guest_name: guestName,
       });
 
-      alert(`🎉 Đã tạo thiệp cho: ${guestName}`);
+      alert(res.data.message);
 
-      // Reset form
-      setGuestName("");
+      if (isEditMode) {
+        navigate(-1);
+      } else {
+        // Reset form
+        setGuestName("");
+      }
     } catch (error) {
       console.error("Lỗi tạo thiệp:", error?.response?.data);
-      alert("Không tạo được thiệp, Tùng kiểm tra lại nhé!");
+      alert("Không tạo được thiệp, kiểm tra lại nhé!");
     } finally {
       setLoading(false);
     }
@@ -54,7 +82,8 @@ const AddInvitation = () => {
           </button>
         </div>
         <h3 className="text-[#c94b6a] font-bold text-3xl mb-4 flex items-center">
-          <FontAwesomeIcon icon={faUserPlus} className="mr-2" /> Thêm Khách Mời
+          <FontAwesomeIcon icon={faUserPlus} className="mr-2" />{" "}
+          {isEditMode ? "Chỉnh sửa Khách Mời" : "Thêm Khách Mời"}
         </h3>
       </div>
 
@@ -86,7 +115,7 @@ const AddInvitation = () => {
           ) : (
             <>
               <FontAwesomeIcon icon={faPaperPlane} />
-              <span>Thêm Thiệp Mời</span>
+              <span> {isEditMode ? "Chỉnh Thiệp Mời" : "Thêm Thiệp Mời"}</span>
             </>
           )}
         </button>
@@ -95,4 +124,4 @@ const AddInvitation = () => {
   );
 };
 
-export default AddInvitation;
+export default AddOrUpdateInvitation;

@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function () {
         Route::post('event/invitations/{weddingSlug}', [InvitationController::class, 'storeOrUpdate']); // Thêm thiệp mời của tôi
         Route::get('event/invitations/{weddingSlug}', [InvitationController::class, 'index']);          // Xem danh sách thiệp của tôi
         Route::delete('delete/invitation/{invitationId}', [InvitationController::class, 'destroy']);
+        Route::get('/{weddingSlug}/{guestNameSlug}/edit-invitation/{invitationId}', [InvitationController::class, 'showToEdit']);
 
         // Xem lịch sử truy cập của thiệp
         Route::get('/invitations/{id}/logs', [ActivityLogController::class, 'getLogsByInvitation']);
