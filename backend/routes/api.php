@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\EventController;
 use App\Http\Controllers\GuestbookController;
 use App\Http\Controllers\WeddingEventController;
+use App\Http\Middleware\OptionalSanctumAuth;
 
 Route::prefix('v1')->group(function () {
     // Đăng ký tài khoản người dùng
@@ -16,7 +16,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     // Route cho khách xem chi tiết thiệp mời
-    Route::get('/invitations/{weddingSlug}/{guestNameSlug}', [InvitationController::class, 'show']);
+    Route::get('/invitations/{weddingSlug}/{guestNameSlug}', [InvitationController::class, 'show'])->middleware('auth.optional');
 
     // Xác nhận tham gia 
     Route::post('/{weddingSlug}/{guestNameSlug}/respond', [InvitationController::class, 'respond']);

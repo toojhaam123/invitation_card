@@ -12,6 +12,9 @@ import {
   faTrashCan,
   faCalendarDays,
   faArrowLeft,
+  faCheckCircle,
+  faTimesCircle,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 
 const InvitationList = () => {
@@ -130,12 +133,13 @@ const InvitationList = () => {
 
                 {/* Thông tin chi tiết */}
                 <div className="p-6">
-                  <div className="flex items-center justify-between mb-6">
+                  {/* Hàng 1: Ngày tháng và Nút Action phụ */}
+                  <div className="flex items-start justify-between mb-4">
                     <div className="flex flex-col">
-                      <span className="text-xs text-gray-400 uppercase font-bold tracking-tighter">
+                      <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
                         Ngày đại hỷ
                       </span>
-                      <div className="flex items-center text-gray-700 font-semibold gap-2">
+                      <div className="flex items-center text-sm text-gray-700 font-bold gap-1.5 mt-0.5">
                         <FontAwesomeIcon
                           icon={faCalendarDays}
                           className="text-[#c94b6a]"
@@ -150,7 +154,7 @@ const InvitationList = () => {
                       </div>
                     </div>
 
-                    {/* Nút Copy Link */}
+                    {/* Nút Copy Link - Cho nhỏ lại một chút để cân bằng */}
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(
@@ -158,44 +162,81 @@ const InvitationList = () => {
                         );
                         alert("Đã sao chép link thiệp!");
                       }}
-                      className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#c94b6a] hover:text-white transition-all shadow-inner"
+                      className="w-9 h-9 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#c94b6a] hover:text-white transition-all shadow-sm border border-gray-100"
                       title="Copy link gửi Zalo"
                     >
-                      <FontAwesomeIcon icon={faLink} />
+                      <FontAwesomeIcon icon={faLink} size="sm" />
                     </button>
                   </div>
 
-                  {/* Nhóm nút bấm Action */}
-                  <div className="flex gap-2 sm:gap-3 items-center mt-4">
-                    {/* Nút Xem chi tiết thiệp */}
+                  {/* Hàng 2: Nhóm Badge Trạng thái - Dùng Flex-wrap để tự xuống hàng nếu quá chật */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {/* Badge Xem */}
+                    <div
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase flex items-center gap-1.5 border ${
+                        item.logs_exists
+                          ? "bg-green-50 text-green-600 border-green-100"
+                          : "bg-gray-50 text-gray-400 border-gray-100"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${item.logs_exists ? "bg-green-500 animate-pulse" : "bg-gray-300"}`}
+                      ></span>
+                      {item.logs_exists ? "Khách đã xem" : "Khách chưa xem"}
+                    </div>
+
+                    {/* Badge Tham dự */}
+                    <div
+                      className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase flex items-center gap-1.5 border ${
+                        item.is_attended === null
+                          ? "bg-orange-50 text-orange-500 border-orange-100"
+                          : item.is_attended
+                            ? "bg-blue-50 text-blue-600 border-blue-100"
+                            : "bg-red-50 text-red-500 border-red-100"
+                      }`}
+                    >
+                      <FontAwesomeIcon
+                        icon={
+                          item.is_attended === null
+                            ? faClock
+                            : item.is_attended
+                              ? faCheckCircle
+                              : faTimesCircle
+                        }
+                        className="text-[11px]"
+                      />
+                      {item.is_attended === null
+                        ? "Đang chờ"
+                        : item.is_attended
+                          ? "Sẽ tham dự"
+                          : "Vắng mặt"}
+                    </div>
+                  </div>
+
+                  {/* Hàng 3: Nhóm nút bấm Action chính (Giữ nguyên của Tùng) */}
+                  <div className="flex gap-2 sm:gap-3 items-center">
                     <Link
                       to={`/${weddingSlug}/${item.slug}`}
-                      className="flex-1 min-w-0 flex items-center justify-center gap-0 p-2.5 bg-[#c94b6a] text-white rounded-xl text-sm font-bold shadow-md shadow-pink-100 hover:bg-[#a83a55] transition-all active:scale-95"
+                      className="flex-[2] flex items-center justify-center gap-2 p-3 bg-[#c94b6a] text-white rounded-2xl text-sm font-bold shadow-lg shadow-pink-100 hover:scale-[1.02] transition-all active:scale-95"
                     >
-                      <FontAwesomeIcon icon={faEye} className="shrink-0" />
-                      <span className="truncate">Xem thiệp</span>
+                      <FontAwesomeIcon icon={faEye} />
+                      <span>Xem thiệp</span>
                     </Link>
-                    <div className="flex flex-[1] gap-2">
-                      {/* Nút Sửa */}
+
+                    <div className="flex flex-1 gap-2">
                       <Link
                         to={`/${weddingSlug}/${item.slug}/edit-invitation/${item.id}`}
-                        className="p-3 flex-1 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-blue-600 transition-all active:scale-90 flex items-center justify-center"
+                        className="p-3 flex-1 bg-white border border-gray-200 text-gray-600 rounded-2xl hover:bg-gray-50 transition-all flex items-center justify-center shadow-sm"
                       >
                         <FontAwesomeIcon icon={faEdit} />
                       </Link>
 
-                      {/* Nút Xóa - Cố định kích thước vuông, không co lại */}
                       <button
                         onClick={() => {
-                          if (
-                            window.confirm(
-                              "Tùng có chắc chắn muốn xóa thiệp mời này này?",
-                            )
-                          ) {
+                          if (window.confirm("Tùng có chắc chắn muốn xóa?"))
                             handleDelete(item.id);
-                          }
                         }}
-                        className="p-3 flex-1 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all active:scale-90 flex items-center justify-center"
+                        className="p-3 flex-1 bg-white border border-red-100 text-red-400 rounded-2xl hover:bg-red-50 hover:text-red-600 transition-all flex items-center justify-center shadow-sm"
                       >
                         <FontAwesomeIcon icon={faTrashCan} />
                       </button>

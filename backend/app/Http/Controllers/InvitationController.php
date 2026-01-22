@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\InvitationRequest;
 use App\Models\ActivityLog;
 use App\Models\Invitation;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use function Illuminate\Support\now;
@@ -28,6 +26,10 @@ class InvitationController extends Controller
             ]);
         }
         $invitation->load('weddingEvent', 'guestbooks'); // Lấy thông tin sự kiện và các bình luận thuộc sự kiện
+
+        // Lấy thông tin xem khách đã xem hay chưa 
+        $invitation->loadExists('logs');
+
         return response()->json([
             'success' => true,
             'data' => $invitation,
@@ -99,17 +101,20 @@ class InvitationController extends Controller
     // Xem chi tiết thiệp mời dành cho khách mời
     public function show(Request $request, $weddingEventSlug, $guestNameSlug)
     {
+        $user = $request->user();
         // Tìm thiệp theo slug trước
         $invitation = Invitation::where('slug', $guestNameSlug)
             ->where('wedding_event_slug', $weddingEventSlug)->firstOrFail();
 
         // Ghi nhật ký truy cập (Tăng lượt xem trước khi lấy dữ liệu)
-        ActivityLog::create([
-            'invitation_id' => $invitation->id,
-            'ip_address'    => $request->ip(),
-            'user_agent'    => $request->header('User-Agent'),
-            'viewed_at'     => now(),
-        ]);
+        if (!$user || $user->id !== $invitation->user_id) {
+            ActivityLog::create([
+                'invitation_id' => $invitation->id,
+                'ip_address'    => $request->ip(),
+                'user_agent'    => $request->header('User-Agent'),
+                'viewed_at'     => now(),
+            ]);
+        }
 
         // Load thêm các quan hệ và đếm (Sử dụng load() và loadCount() riêng biệt)
         $invitation->load(['weddingEvent', 'guestbooks' => function ($query) {

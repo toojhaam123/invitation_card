@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
-import { publicApi } from "../api/axios";
+import { privateApi, publicApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "../components/LoadingState";
 import {
@@ -36,7 +36,7 @@ const GuestInvitation = () => {
 
     const fetchInvitation = async () => {
       try {
-        const res = await publicApi.get(
+        const res = await privateApi.get(
           `invitations/${weddingSlug}/${guestNameSlug}`,
         );
         setData(res.data.data);
@@ -121,6 +121,7 @@ const GuestInvitation = () => {
       }
     } catch (e) {
       setError(e?.response?.data?.message);
+      alert(e?.response?.data?.message);
       console.log("Lỗi khi gửi lời chúc: ", e?.response?.data);
     }
   };
@@ -206,14 +207,14 @@ const GuestInvitation = () => {
             <img src="../public/no.png" alt="" />
           </div>
           {/* Header  */}
-          <section className="py-5 px-1 text-center relative">
+          <section className="py-5 px-1 text-center relative overflow-hidden">
             <h3 className="text-xl uppercase text-gray-600 mb-2">
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
               {isPreview ? "Khách mời mẫu" : data.guest_name}
             </h1>
-            <p className="text-gray-600 text-xl mb-6 italic px-4">
+            <p className="text-gray-600 text-xl mb-4 italic px-4">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
             </p>
 
@@ -234,7 +235,7 @@ const GuestInvitation = () => {
 
               {/* Nội dung tên nằm trên cùng */}
               <div className="relative z-10 space-y-2">
-                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,1)]">
+                <h2 className="font-title text-5xl md:text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,0.5)]">
                   {wedding.groom_name}
                 </h2>
 
@@ -246,16 +247,16 @@ const GuestInvitation = () => {
                   </div>
                 </div>
 
-                <h2 className="font-title text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,1)]">
+                <h2 className="font-title text-5xl md:text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,0.5)]">
                   {wedding.bride_name}
                 </h2>
               </div>
             </div>
-            <div className="absolute z-0  transform w-20 -scale-x-100 bottom-0 -rotate-[90deg] ">
-              <img src="../public/no.png" alt="" />
+            <div className="absolute z-10  transform w-20 md:w-28 md:bottom-0 -bottom-2 left-1 -rotate-[25deg] ">
+              <img src="../public/rose3.png" alt="" />
             </div>
-            <div className="absolute z-0  transform w-20 bottom-0 right-0 rotate-[90deg] me-1 ">
-              <img src="../public/no.png" alt="" />
+            <div className="absolute z-10  transform w-20 md:w-28 md:bottom-0 -bottom-2 right-0 -scale-x-100 right-0 me-1 rotate-[25deg] ">
+              <img src="../public/rose3.png" alt="" />
             </div>
           </section>
 
@@ -635,7 +636,7 @@ const GuestInvitation = () => {
             </div>
           </section>
 
-          <footer className="pt-2 text-center bg-gray-50 rounded-b-[3rem] px-4 pb-10">
+          <footer className="relative overflow-hidden pt-2 text-center bg-gray-50 rounded-b-[3rem] px-4 md:pb-10 pb-16">
             {/* QR và liên hệ */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto md:mx-4">
               {/* Thẻ QR Code Ngân hàng */}
@@ -710,6 +711,16 @@ const GuestInvitation = () => {
               {wedding.groom_name} <span className="text-pink-300 mx-1">❤</span>{" "}
               {wedding.bride_name}
             </p>
+            <img
+              src="../../public/rose4.png"
+              className="absolute -left-0 -bottom-5 md:-left-0 md:-bottom-7 -translate-y-1/2 w-20 md:w-28 rotate-[25deg]"
+              alt=""
+            />
+            <img
+              src="../../public/rose4.png"
+              className="absolute md:-right-0 -bottom-5 right-0 md:-bottom-7 -translate-y-1/2 w-20 md:w-28 -rotate-[25deg] -scale-x-100"
+              alt=""
+            />
           </footer>
         </main>
       )}

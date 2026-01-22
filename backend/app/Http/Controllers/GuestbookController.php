@@ -12,7 +12,7 @@ class GuestbookController extends Controller
     public function store(Request $request, $wddingSlug, $guestNameSlug)
     {
         // chặn các từ ngữu phản cản
-        $badWords = ['xấu', 'tệ', 'vl', 'dm', 'dmm', 'vcl', 'địt mẹ', 'địt cụ', 'ngu', 'ngáo', 'cút'];
+        $badWords = ['xấu', 'tệ', 'vl', 'dm', 'dmm', 'vcl', 'địt mẹ', 'địt cụ', 'ngu', 'ngáo', 'cút', 'đéo', 'dell', 'del', 'mẹ', 'mẹ mày', 'bố mày'];
 
         foreach ($badWords as $word) {
             if (str_contains(strtolower($request->content), $word)) {
