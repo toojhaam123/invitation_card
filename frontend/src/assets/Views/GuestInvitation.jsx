@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { privateApi, publicApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LoadingState from "../components/LoadingState";
@@ -8,19 +8,17 @@ import {
   faPhone,
   faQrcode,
   faEnvelopeOpenText,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../hooks/me";
 
-const GuestInvitation = () => {
+const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
-  const location = useLocation();
-  const previewEventData = location.state?.previewEventData;
-  const isPreview = Boolean(previewEventData);
-  // console.log("form preview: ", previewEventData);
+  console.log("form preview: ", formData);
 
   const { weddingSlug, guestNameSlug } = useParams();
-  const [data, setData] = useState(isPreview ? previewEventData : null);
+  const [data, setData] = useState(isPreview ? formData : null);
   const [loading, setLoading] = useState(!isPreview);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -30,7 +28,12 @@ const GuestInvitation = () => {
   const [guestbooks, setGuestBooks] = useState([]);
   const [error, setError] = useState();
   const [attendanceStatus, setAttendanceStatus] = useState(null);
-
+  const [previewUrls, setPreViewUrls] = useState({
+    cover: null,
+    album: [],
+    qr: null,
+  });
+  console.log("is preview: ", isPreview);
   useEffect(() => {
     if (isPreview) return; // nếu chỉ là xem trước thì ko cần gọi API
 
@@ -57,6 +60,55 @@ const GuestInvitation = () => {
     };
     fetchInvitation();
   }, [weddingSlug, guestNameSlug]);
+
+  useEffect(() => {
+    if (!isPreview) return;
+
+    const generateUrls = [];
+
+    // Xử lý ảnh bìa
+    if (data?.cover_image instanceof File) {
+      const url = URL.createObjectURL(data.cover_image);
+      generateUrls.push(url);
+      setPreViewUrls((prev) => ({ ...prev, cover: url }));
+    }
+
+    // Xử lý album
+    if (data?.album_image) {
+      const albums =
+        data?.album_image instanceof FileList
+          ? Array.from(data?.album_image)
+          : Array.isArray(data?.album_image)
+            ? data?.album_image
+            : [];
+      if (albums.length > 0) {
+        const urls = albums.map((file) => {
+          if (file instanceof File) {
+            const url = URL.createObjectURL(file);
+            generateUrls.push(url);
+            return url;
+          }
+          return file;
+        });
+        setPreViewUrls((prev) => ({ ...prev, album: urls }));
+      }
+    }
+
+    // Xử lý qr code
+    if (data.qr_code_bank instanceof File) {
+      const url = URL.createObjectURL(data.qr_code_bank);
+      generateUrls.push(url);
+      setPreViewUrls((prev) => ({ ...prev, qr: url }));
+    }
+
+    // Dọn dẹp các URL
+    return () => {
+      generateUrls.forEach((url) => {
+        URL.revokeObjectURL(url);
+        console.log("Đã dọn RAM");
+      });
+    };
+  }, [isPreview, data?.cover_image, data?.album_image, data?.qr_code_bank]);
 
   const handleOpenInvitation = () => {
     setIsExiting(true);
@@ -122,20 +174,29 @@ const GuestInvitation = () => {
     } catch (e) {
       setError(e?.response?.data?.message);
       alert(e?.response?.data?.message);
-      console.log("Lỗi khi gửi lời chúc: ", e?.response?.data);
     }
   };
+  console.log("data_album: ", data.album_image);
 
   if (loading) return <LoadingState />;
   // console.log("Data: ", data);
   if (!isPreview) {
     if (!data || !data.wedding_event) return <ErrorState />;
   }
-  const wedding = isPreview ? data : data.wedding_event;
-  const logsCount = data.logs_count;
+  const wedding = isPreview ? data : data?.wedding_event;
+  const logsCount = data?.logs_count;
 
   return (
     <div className="min-h-screen bg-[#FFF5F7] overflow-x-hidden font-content">
+      {isPreview && (
+        <button
+          type="button"
+          onClick={() => setIsPreview(false)}
+          className="fixed right-2 top-4 z-[200] flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-[#c94b6a] border border-pink-100 rounded-full shadow-sm hover:bg-[#c94b6a] hover:text-white transition-all active:scale-95 font-bold text-xs uppercase tracking-tight"
+        >
+          <FontAwesomeIcon icon={faTimes} className="text-xs" />
+        </button>
+      )}
       {!isOpen ? (
         /* --- MÀN HÌNH BÌA (COVER PAGE) --- */
         <div
@@ -149,9 +210,11 @@ const GuestInvitation = () => {
           <div className="relative w-full max-w-2xl h-[100vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
             <img
               src={
-                wedding.cover_image
-                  ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
-                  : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                isPreview && previewUrls.cover
+                  ? previewUrls.cover
+                  : wedding.cover_image
+                    ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
+                    : "../../public/anh-nen-cuoi-hang-tung.jpg"
               }
               className="absolute inset-0 w-full h-full object-cover"
               alt="Cover"
@@ -224,9 +287,11 @@ const GuestInvitation = () => {
               <div className="absolute inset-0 z-0">
                 <img
                   src={
-                    wedding.cover_image
-                      ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
-                      : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                    isPreview && previewUrls.cover
+                      ? previewUrls.cover
+                      : wedding.cover_image
+                        ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
+                        : "../../public/anh-nen-cuoi-hang-tung.jpg"
                   }
                   className="w-full h-full object-cover opacity-60"
                   alt="Background"
@@ -314,9 +379,9 @@ const GuestInvitation = () => {
                     const weekday = date.toLocaleDateString("vi-VN", {
                       weekday: "long",
                     });
-                    const day = date.getDate();
-                    const month = date.getMonth() + 1; // Tháng trong JS bắt đầu từ 0
-                    const year = date.getFullYear();
+                    const day = date.getDate() || 0;
+                    const month = date.getMonth() + 1 || 0; // Tháng trong JS bắt đầu từ 0
+                    const year = date.getFullYear() || 0;
 
                     return (
                       <div className="flex items-center justify-center">
@@ -359,8 +424,6 @@ const GuestInvitation = () => {
                         </div>
                       </div>
                     );
-
-                    // `${weekday}, ngày ${day}, tháng ${month}, năm ${year}`;
                   })()}
                 </div>
                 <p className="text-pink-400 font-medium italic fonlt-bold">
@@ -487,7 +550,10 @@ const GuestInvitation = () => {
           <div className="h-[1px] bg-pink-200 w-1/2 mx-auto mb-5"></div>
 
           {/* Album Ảnh */}
-          {wedding.album_image && wedding.album_image.length > 0 && (
+          {(isPreview
+            ? previewUrls.album
+            : wedding.album_image && wedding.album_image
+          )?.length > 0 && (
             <section className="px-4 bg-white">
               <h3 className="text-pink-500 font-bold tracking-[0.2em] uppercase mb-4">
                 Album Ảnh Cưới
@@ -496,23 +562,30 @@ const GuestInvitation = () => {
                 className="flex overflow-x-auto gap-1 pb-6 snap-x scrollbar-hide"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
-                {wedding.album_image.map((img, index) => (
-                  <div
-                    key={index}
-                    onClick={() =>
-                      setSelectedImg(
-                        `http://localhost:8000/storage/weddingevents/albums/${img}`,
-                      )
-                    }
-                    className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
-                  >
-                    <img
-                      src={`http://localhost:8000/storage/weddingevents/albums/${img}`}
-                      className="w-full h-full object-cover"
-                      alt={`Wedding ${index}`}
-                    />
-                  </div>
-                ))}
+                {(isPreview ? previewUrls.album : wedding.album_image).map(
+                  (img, index) => {
+                    const imgSrc = isPreview
+                      ? img
+                      : `http://localhost:8000/storage/weddingevents/albums/${img}`;
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedImg(imgSrc)}
+                        className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
+                      >
+                        <img
+                          src={imgSrc}
+                          className="w-full h-full object-cover"
+                          alt={`Wedding ${index}`}
+                          onError={(e) => {
+                            e.target.src =
+                              "../../public/anh-nen-cuoi-hang-tung.jpg";
+                          }}
+                        />
+                      </div>
+                    );
+                  },
+                )}
               </div>
               {/* --- MODAL PHÓNG TO ẢNH --- */}
               {selectedImg && (
@@ -659,7 +732,11 @@ const GuestInvitation = () => {
 
                   <div className="relative group">
                     <img
-                      src={`http://localhost:8000/storage/weddingevents/qrcode/${wedding.qr_code_bank}`}
+                      src={
+                        isPreview && previewUrls.qr
+                          ? previewUrls.qr
+                          : `http://localhost:8000/storage/weddingevents/qrcode/${wedding.qr_code_bank}`
+                      }
                       alt="QR Code"
                       className="w-40 h-40 object-cover rounded-xl border-4 border-gray-50 shadow-inner group-hover:scale-105 transition-transform duration-300"
                     />
@@ -672,33 +749,32 @@ const GuestInvitation = () => {
               )}
 
               {/* Thẻ Liên hệ */}
-              {wedding?.phone_contacts && (
-                <section className="bg-white p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center justify-center transition-all hover:shadow-md">
-                  <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
-                    <FontAwesomeIcon
-                      icon={faPhone}
-                      className="text-blue-400 text-xl"
-                    />
-                  </div>
-                  <h3 className="text-gray-800 font-bold mb-3 uppercase tracking-wider text-sm">
-                    Hỗ trợ & Liên hệ
-                  </h3>
-                  <div className="space-y-2">
-                    <p className="text-gray-600 font-medium">
-                      {wedding.phone_contacts}
-                    </p>
-                    <a
-                      href={`tel:${wedding.phone_contacts}`}
-                      className="inline-block mt-2 px-6 py-2 bg-blue-50 text-blue-500 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
-                    >
-                      Gọi ngay
-                    </a>
-                  </div>
-                  <p className="mt-4 text-xs text-gray-400 italic">
-                    Liên hệ nếu Quý khách cần hỗ trợ
+
+              <section className="bg-white p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center justify-center transition-all hover:shadow-md">
+                <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mb-4">
+                  <FontAwesomeIcon
+                    icon={faPhone}
+                    className="text-blue-400 text-xl"
+                  />
+                </div>
+                <h3 className="text-gray-800 font-bold mb-3 uppercase tracking-wider text-sm">
+                  Hỗ trợ & Liên hệ
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-gray-600 font-medium">
+                    {wedding.phone_contacts ? wedding.phone_contacts : "Trống"}
                   </p>
-                </section>
-              )}
+                  <a
+                    href={`tel:${wedding.phone_contacts}`}
+                    className="inline-block mt-2 px-6 py-2 bg-blue-50 text-blue-500 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
+                  >
+                    Gọi ngay
+                  </a>
+                </div>
+                <p className="mt-4 text-xs text-gray-400 italic">
+                  Liên hệ nếu Quý khách cần hỗ trợ
+                </p>
+              </section>
             </div>
 
             {/* Biểu tượng nhỏ xinh ở trên */}

@@ -15,6 +15,7 @@ import {
   faCheckCircle,
   faTimesCircle,
   faClock,
+  faCommentDots,
 } from "@fortawesome/free-solid-svg-icons";
 
 const InvitationList = () => {
@@ -132,9 +133,9 @@ const InvitationList = () => {
                 </div>
 
                 {/* Thông tin chi tiết */}
-                <div className="p-6">
+                <div className="p-3">
                   {/* Hàng 1: Ngày tháng và Nút Action phụ */}
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-3">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
                         Ngày đại hỷ
@@ -170,7 +171,7 @@ const InvitationList = () => {
                   </div>
 
                   {/* Hàng 2: Nhóm Badge Trạng thái - Dùng Flex-wrap để tự xuống hàng nếu quá chật */}
-                  <div className="flex flex-wrap gap-2 mb-6">
+                  <div className="flex flex-wrap gap-2 mb-3">
                     {/* Badge Xem */}
                     <div
                       className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase flex items-center gap-1.5 border ${
@@ -210,6 +211,14 @@ const InvitationList = () => {
                         : item.is_attended
                           ? "Sẽ tham dự"
                           : "Vắng mặt"}
+                    </div>
+                    {/* Số lượng lời chúc */}
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold uppercase bg-purple-50 text-purple-600 border border-purple-100">
+                      <FontAwesomeIcon
+                        icon={faCommentDots}
+                        className="text-[11px]"
+                      />
+                      {item.guestbooks_count}
                     </div>
                   </div>
 

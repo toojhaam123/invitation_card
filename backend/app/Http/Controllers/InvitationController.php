@@ -30,6 +30,9 @@ class InvitationController extends Controller
         // Lấy thông tin xem khách đã xem hay chưa 
         $invitation->loadExists('logs');
 
+        // Lấy số lượng lời chút 
+        $invitation->loadCount('guestbooks');
+
         return response()->json([
             'success' => true,
             'data' => $invitation,
