@@ -12,12 +12,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import useAuth from "../hooks/me";
 
-const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
+const GuestInvitation = ({
+  isPreview,
+  setIsPreview,
+  formData,
+  isCreatInvitation,
+}) => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
 
   const { weddingSlug, guestNameSlug } = useParams();
-  const [data, setData] = useState(isPreview ? formData : null);
+  const [data, setData] = useState(
+    isPreview || isCreatInvitation ? formData : null,
+  );
   const [loading, setLoading] = useState(!isPreview);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -32,9 +39,16 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
     album: [],
     qr: null,
   });
+  console.log("isCreatInvitation: ", isCreatInvitation);
 
   useEffect(() => {
-    if (isPreview) return; // nếu chỉ là xem trước thì ko cần gọi API
+    if (
+      isPreview === true ||
+      isCreatInvitation === true ||
+      !guestNameSlug ||
+      !weddingSlug
+    )
+      return setLoading(false); // nếu chỉ là xem trước thì ko cần gọi API
 
     const fetchInvitation = async () => {
       try {
@@ -58,7 +72,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
       }
     };
     fetchInvitation();
-  }, [weddingSlug, guestNameSlug]);
+  }, [weddingSlug, guestNameSlug, isPreview, isCreatInvitation]);
 
   useEffect(() => {
     if (!isPreview) return;
@@ -182,9 +196,9 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
   };
 
   if (loading) return <LoadingState />;
-  if (!isPreview) {
-    if (!data || !data.wedding_event) return <ErrorState />;
-  }
+  // if (!isPreview || !isCreatInvitation) {
+  //   if (!data || !data.wedding_event) return <ErrorState />;
+  // }
   const wedding = isPreview ? data : data?.wedding_event;
 
   const logsCount = data?.logs_count;
@@ -214,10 +228,10 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
           <div className="relative w-full max-w-2xl h-[100vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
             <img
               src={
-                isPreview && previewUrls.cover
-                  ? previewUrls.cover
-                  : wedding.cover_image
-                    ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
+                isPreview && previewUrls?.cover
+                  ? previewUrls?.cover
+                  : wedding?.cover_image
+                    ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
                     : "../../public/anh-nen-cuoi-hang-tung.jpg"
               }
               className="absolute inset-0 w-full h-full object-cover"
@@ -229,7 +243,9 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   Trân trọng kính mời
                 </p>
                 <h1 className="text-2xl font-bold mb-4 drop-shadow-lg">
-                  {isPreview ? "Khách mời mẫu" : data.guest_name}
+                  {isPreview || isCreatInvitation
+                    ? "Khách mời mẫu"
+                    : data?.guest_name}
                 </h1>
                 <button
                   onClick={handleOpenInvitation}
@@ -239,9 +255,11 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   MỞ THIỆP
                 </button>
 
-                {token && me?.id == wedding?.user_id && !isPreview && (
-                  <p className="z-100">Đã xem {logsCount} lần</p>
-                )}
+                {token &&
+                  me?.id == wedding?.user_id &&
+                  (!isPreview || isCreatInvitation) && (
+                    <p className="z-100">Đã xem {logsCount} lần</p>
+                  )}
               </div>
             </div>
           </div>
@@ -280,7 +298,9 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
-              {isPreview ? "Khách mời mẫu" : data.guest_name}
+              {isPreview || isCreatInvitation
+                ? "Khách mời mẫu"
+                : data?.guest_name}
             </h1>
             <p className="text-gray-600 text-xl mb-4 italic px-4">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
@@ -292,10 +312,10 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
               <div className="absolute inset-0 z-0">
                 <img
                   src={
-                    isPreview && previewUrls.cover
-                      ? previewUrls.cover
-                      : wedding.cover_image
-                        ? `http://localhost:8000/storage/weddingevents/covers/${wedding.cover_image}`
+                    isPreview && previewUrls?.cover
+                      ? previewUrls?.cover
+                      : wedding?.cover_image
+                        ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
                         : "../../public/anh-nen-cuoi-hang-tung.jpg"
                   }
                   className="w-full h-full object-cover opacity-60"
@@ -306,7 +326,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
               {/* Nội dung tên nằm trên cùng */}
               <div className="relative z-10 space-y-2">
                 <h2 className="font-title text-5xl md:text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,0.5)]">
-                  {wedding.groom_name}
+                  {wedding?.groom_name}
                 </h2>
 
                 {/* Trái tim giữa */}
@@ -318,7 +338,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                 </div>
 
                 <h2 className="font-title text-5xl md:text-6xl md:text-8xl text-pink-600 drop-shadow-[0_4px_2px_rgba(0,0,0,0.5)]">
-                  {wedding.bride_name}
+                  {wedding?.bride_name}
                 </h2>
               </div>
             </div>
@@ -344,7 +364,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                                 flex flex-col justify-center items-center shadow-inner bg-white leading-tight transition-all"
                   >
                     {(() => {
-                      if (!wedding || !wedding.event_date) {
+                      if (!wedding || !wedding?.event_date) {
                         return <span className="text-gray-400">--:--</span>;
                       }
                       const parts = wedding?.event_date.split("T");
@@ -380,7 +400,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                 {/* Thứ ngày, tháng, năm */}
                 <div className="text-2xl font-bold text-gray-800 mb-5 capitalize md:px-2 leading-tight">
                   {(() => {
-                    const date = new Date(wedding.event_date);
+                    const date = new Date(wedding?.event_date);
                     const weekday = date.toLocaleDateString("vi-VN", {
                       weekday: "long",
                     });
@@ -432,7 +452,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   })()}
                 </div>
                 <p className="text-pink-400 font-medium italic fonlt-bold">
-                  (Tức ngày {wedding.lunar_date})
+                  (Tức ngày {wedding?.lunar_date})
                 </p>
               </div>
             </div>
@@ -444,17 +464,17 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                 Địa điểm tổ chức
               </h3>
               <p className="text-2xl font-bold text-gray-800 mb-3 capitalize">
-                Tại: {wedding.location_type}
+                Tại: {wedding?.location_type}
               </p>
               <p className="text-2xl font-bold text-gray-800 mb-5 capitalize uppercase">
-                {wedding.address}
+                {wedding?.address}
               </p>
 
               {/* Map Iframe */}
-              {wedding.map_iframe && (
+              {wedding?.map_iframe && (
                 <div
                   className="w-full h-64 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white mb-3"
-                  dangerouslySetInnerHTML={{ __html: wedding.map_iframe }}
+                  dangerouslySetInnerHTML={{ __html: wedding?.map_iframe }}
                 />
               )}
             </div>
@@ -468,15 +488,15 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   NHÀ TRAI
                 </h4>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.groom_father || "..."}
+                  {wedding?.groom_father || "..."}
                 </p>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.groom_mother || "..."}
+                  {wedding?.groom_mother || "..."}
                 </p>
                 <p className="text-start text-lg font-bold text-gray-700">
                   Chú rể:{" "}
                   <span className="font-title text-pink-600 text-lg text-center italic">
-                    {wedding.groom_name}
+                    {wedding?.groom_name}
                   </span>
                 </p>
               </div>
@@ -485,16 +505,16 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   NHÀ GÁI
                 </h4>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.bride_father || "..."}
+                  {wedding?.bride_father || "..."}
                 </p>
                 <p className="text-lg text-gray-700 font-bold capitalize">
-                  {wedding.bride_mother || "..."}
+                  {wedding?.bride_mother || "..."}
                 </p>
                 <p className="text-start text-lg font-bold text-gray-700">
                   Cô dâu:{" "}
                   <span className="font-title text-pink-600 text-lg text-center italic">
                     {" "}
-                    {wedding.bride_name}
+                    {wedding?.bride_name}
                   </span>
                 </p>
               </div>
@@ -557,7 +577,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
           {/* Album Ảnh */}
           {(isPreview
             ? previewUrls?.album?.length > 0
-              ? previewUrls.album
+              ? previewUrls?.album
               : wedding?.album_image
             : wedding?.album_image
           )?.length > 0 && (
@@ -725,11 +745,11 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
             {/* QR và liên hệ */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto md:mx-4">
               {/* Thẻ QR Code Ngân hàng */}
-              {(isPreview && previewUrls.qr
-                ? previewUrls.qr
-                : isPreview && wedding.qr_code_bank
-                  ? wedding.qr_code_bank
-                  : wedding.qr_code_bank) && (
+              {(isPreview && previewUrls?.qr
+                ? previewUrls?.qr
+                : isPreview && wedding?.qr_code_bank
+                  ? wedding?.qr_code_bank
+                  : wedding?.qr_code_bank) && (
                 <div className="bg-white w-full p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center transition-all hover:shadow-md">
                   <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
                     <FontAwesomeIcon
@@ -749,9 +769,9 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   <div className="relative group">
                     <img
                       src={
-                        isPreview && previewUrls.qr
+                        isPreview && previewUrls?.qr
                           ? previewUrls.qr
-                          : `http://localhost:8000/storage/weddingevents/qrcode/${wedding.qr_code_bank}`
+                          : `http://localhost:8000/storage/weddingevents/qrcode/${wedding?.qr_code_bank}`
                       }
                       alt="QR Code"
                       className="w-40 h-40 object-cover rounded-xl border-4 border-gray-50 shadow-inner group-hover:scale-105 transition-transform duration-300"
@@ -778,10 +798,12 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                 </h3>
                 <div className="space-y-2">
                   <p className="text-gray-600 font-medium">
-                    {wedding.phone_contacts ? wedding.phone_contacts : "Trống"}
+                    {wedding?.phone_contacts
+                      ? wedding?.phone_contacts
+                      : "Trống"}
                   </p>
                   <a
-                    href={`tel:${wedding.phone_contacts}`}
+                    href={`tel:${wedding?.phone_contacts}`}
                     className="inline-block mt-2 px-6 py-2 bg-blue-50 text-blue-500 rounded-full text-sm font-semibold hover:bg-blue-100 transition-colors"
                   >
                     Gọi ngay
@@ -800,8 +822,9 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
               <div className="h-[1px] w-8 bg-pink-100"></div>
             </div>
             <p className="text-gray-400 text-[10px] tracking-[0.4em] uppercase font-sans">
-              {wedding.groom_name} <span className="text-pink-300 mx-1">❤</span>{" "}
-              {wedding.bride_name}
+              {wedding?.groom_name}{" "}
+              <span className="text-pink-300 mx-1">❤</span>{" "}
+              {wedding?.bride_name}
             </p>
             <img
               src="../../public/rose4.png"

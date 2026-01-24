@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Để lấy wedding_event_id từ URL
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import GuestInvitation from "./GuestInvitation";
 import {
   faUserPlus,
   faPaperPlane,
@@ -15,7 +16,24 @@ const AddOrUpdateInvitation = () => {
   const [guestName, setGuestName] = useState("");
   const [loading, setLoading] = useState(false);
   const isEditMode = Boolean(invitationId);
+  const [isCreatInvitation, setIsCreatInvitation] = useState();
+  const [formData, setFormData] = useState({
+    groom_name: "",
+    bride_name: "",
+    phone_contacts: "",
+    groom_father: "",
+    groom_mother: "",
+    bride_father: "",
+    bride_mother: "",
+    event_date: "",
+    lunar_date: "",
+    location_type: "nhà trai",
+    address: "",
+    map_iframe: "",
+    is_published: true,
+  });
 
+  // Lấy thông tin thiệp
   useEffect(() => {
     if (isEditMode) {
       setLoading(true);
@@ -35,6 +53,42 @@ const AddOrUpdateInvitation = () => {
         }
       };
       fetchInvitation();
+    } else {
+      const fetchDataEvent = async () => {
+        try {
+          const res = await privateApi.get(`events/${weddingSlug}`);
+          const data = res.data.data;
+
+          setFormData({
+            id: data.id,
+            groom_name: data.groom_name || "",
+            bride_name: data.bride_name || "",
+            phone_contacts: data.phone_contacts || "",
+            groom_father: data.groom_father || "",
+            groom_mother: data.groom_mother || "",
+            bride_father: data.bride_father || "",
+            bride_mother: data.bride_mother || "",
+            event_date: data.event_date ? data.event_date.slice(0, 16) : "", // Định dạng cho datetime-local
+            lunar_date: data.lunar_date || "",
+            location_type: data.location_type || "nhà trai",
+            address: data.address || "",
+            map_iframe: data.map_iframe || "",
+            is_published: data.is_published,
+            album_image: data.album_image,
+            cover_image: data.cover_image,
+            qr_code_bank: data.qr_code_bank,
+          });
+          if (data) {
+            setIsCreatInvitation(true);
+          }
+        } catch (error) {
+          setIsCreatInvitation(false);
+          console.log("Lỗi khi lấy chi tiết sự kiện: ", error?.response?.data);
+          alert("Không tìm thấy sự kiện cần sửa!");
+          // navigate("/");
+        }
+      };
+      fetchDataEvent();
     }
   }, [invitationId, isEditMode]);
 
@@ -74,8 +128,8 @@ const AddOrUpdateInvitation = () => {
           <button
             onClick={() => navigate(-1)}
             className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
-    flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
-    active:scale-95 whitespace-nowrap shrink-0"
+              flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
+              active:scale-95 whitespace-nowrap shrink-0"
           >
             <FontAwesomeIcon icon={faArrowLeft} />
             <span className="hidden md:inline">Quay lại</span>
@@ -87,39 +141,48 @@ const AddOrUpdateInvitation = () => {
         </h3>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 max-w-4xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
-      >
-        {/* GUEST NAME */}
-        <div>
-          <label className="text-gray-500 ml-1">Tên khách mời</label>
-          <input
-            type="text"
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            placeholder="Ví dụ: Anh Tùng & Người thương"
-            className="w-full mt-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#c94b6a] outline-none transition-all"
-            required
-          />
-        </div>
-
-        {/* SUBMIT BUTTON */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-3 bg-[#c94b6a] text-white rounded-xl font-bold shadow-lg hover:bg-[#a83a55] transition-all disabled:bg-gray-300 flex items-center justify-center space-x-2"
+      <div className="min-h-screen flex gap-1">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 max-w-xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
         >
-          {loading ? (
-            <span>Đang tạo...</span>
-          ) : (
-            <>
-              <FontAwesomeIcon icon={faPaperPlane} />
-              <span> {isEditMode ? "Chỉnh Thiệp Mời" : "Thêm Thiệp Mời"}</span>
-            </>
-          )}
-        </button>
-      </form>
+          {/* GUEST NAME */}
+          <div>
+            <label className="text-gray-500 ml-1">Tên khách mời</label>
+            <input
+              type="text"
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="Ví dụ: Anh Tùng & Người thương"
+              className="w-full mt-1 px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[#c94b6a] outline-none transition-all"
+              required
+            />
+          </div>
+
+          {/* SUBMIT BUTTON */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-[#c94b6a] text-white rounded-xl font-bold shadow-lg hover:bg-[#a83a55] transition-all disabled:bg-gray-300 flex items-center justify-center space-x-2"
+          >
+            {loading ? (
+              <span>Đang tạo...</span>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faPaperPlane} />
+                <span>
+                  {" "}
+                  {isEditMode ? "Chỉnh Thiệp Mời" : "Thêm Thiệp Mời"}
+                </span>
+              </>
+            )}
+          </button>
+        </form>
+        <GuestInvitation
+          formData={formData}
+          isCreatInvitation={isCreatInvitation}
+        ></GuestInvitation>
+      </div>
     </div>
   );
 };

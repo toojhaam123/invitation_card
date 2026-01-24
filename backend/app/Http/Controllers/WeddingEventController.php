@@ -119,10 +119,10 @@ class WeddingEventController extends Controller
     }
 
     // Lấy chi tiết sự kiện 
-    public function show(Request $request, $eventId)
+    public function show(Request $request, $weddingSlug)
     {
         // Tìm sự kiện cần chỉnh sửa 
-        $weddingEvent = WeddingEvent::where('id', $eventId)->firstOrFail();
+        $weddingEvent = WeddingEvent::where('slug', $weddingSlug)->firstOrFail();
 
         return response()->json([
             'success' => true,

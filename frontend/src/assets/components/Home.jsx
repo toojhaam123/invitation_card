@@ -27,7 +27,7 @@ const EventDashboard = () => {
       try {
         const res = await privateApi.get("/events");
         setEvents(res.data.data);
-        console.log("Danh sách sự kiện: ", res.data.data);
+        // console.log("Danh sách sự kiện: ", res.data.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách sự kiện: ", error?.response?.data);
       } finally {
@@ -196,7 +196,7 @@ const EventDashboard = () => {
                   {/* Nút Sửa */}
                   <button
                     onClick={() => {
-                      navigate(`/edit-event/${event.id}`);
+                      navigate(`/${event.slug}/edit-event`);
                     }}
                     className="p-3 flex-1 bg-gray-100 text-gray-600 rounded-xl hover:bg-gray-200 hover:text-blue-600 transition-all active:scale-90 flex items-center justify-center"
                     title="Chỉnh sửa"

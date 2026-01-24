@@ -15,9 +15,9 @@ import {
 import GuestInvitation from "./GuestInvitation";
 
 const AddOrUpdateWeddingEvent = () => {
-  const { eventId } = useParams();
+  const { weddingSlug } = useParams();
   const [isPreview, setIsPreview] = useState(false);
-  const isEditMode = Boolean(eventId);
+  const isEditMode = Boolean(weddingSlug);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,7 +44,7 @@ const AddOrUpdateWeddingEvent = () => {
     if (isEditMode) {
       const fetchDataEvent = async () => {
         try {
-          const res = await privateApi.get(`events/${eventId}`);
+          const res = await privateApi.get(`events/${weddingSlug}`);
           const data = res.data.data;
 
           setFormData({
@@ -74,7 +74,7 @@ const AddOrUpdateWeddingEvent = () => {
       };
       fetchDataEvent();
     }
-  }, [eventId, isEditMode]);
+  }, [weddingSlug, isEditMode]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

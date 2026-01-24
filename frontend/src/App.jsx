@@ -28,7 +28,7 @@ function App() {
 
         {/* Chỉnh sửa sự kiện */}
         <Route
-          path="/edit-event/:eventId"
+          path=":weddingSlug/edit-event"
           element={
             <ProtectRoute>
               <AddOrUpdateWeddingEvent />
