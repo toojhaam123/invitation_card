@@ -16,18 +16,21 @@ class WeddingEventController extends Controller
         // Lấy Id user người dùng hiện tại 
         $userId = $request->user()->id;
 
-        $invitation = WeddingEvent::where('user_id', $userId)->latest()->get();
+        $weddingEvent = WeddingEvent::where('user_id', $userId)->latest()->get();
 
-        if (!$invitation) {
+        if (!$weddingEvent) {
             return response()->json([
                 'success' => false,
                 'message' => "Không có thiệp nào!",
             ]);
         }
 
+        // Lấy danh sách thiệt
+        $weddingEvent->loadCount('invitations');
+
         return response()->json([
             'success' => true,
-            'data' => $invitation,
+            'data' => $weddingEvent,
         ]);
     }
 
@@ -145,9 +148,6 @@ class WeddingEventController extends Controller
 
                 ], 403);
             }
-
-            // Lấy danh sách ID của tất cả thiệp mời thuộc sự kiện này
-            $invitationIds = $weddingEvent->invitations->pluck('id');
 
             // Xóa thiệp mời
             $weddingEvent->invitations()->delete();

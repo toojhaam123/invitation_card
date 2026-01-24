@@ -108,7 +108,7 @@ const InvitationList = () => {
             {invitations.map((item) => (
               <div
                 key={item.id}
-                className="group bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform"
+                className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-300 transform"
               >
                 {/* Phần ảnh bìa (Cover Image) */}
                 <div className="relative h-48 overflow-hidden">
@@ -123,7 +123,7 @@ const InvitationList = () => {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-[#c94b6a] text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-sm">
-                    {item.location_type || "Wedding"}
+                    {item.event_type || "Wedding"}
                   </span>
                   <div className="absolute bottom-1 pl-1 text-white">
                     <p className="font-bold text-lg leading-tight">
@@ -171,7 +171,7 @@ const InvitationList = () => {
                   </div>
 
                   {/* Hàng 2: Nhóm Badge Trạng thái - Dùng Flex-wrap để tự xuống hàng nếu quá chật */}
-                  <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="flex flex-wrap gap-2  mb-3">
                     {/* Badge Xem */}
                     <div
                       className={`px-2 py-1 rounded-lg text-[10px] font-bold uppercase flex items-center gap-1.5 border ${
@@ -226,7 +226,7 @@ const InvitationList = () => {
                   <div className="flex gap-2 sm:gap-3 items-center">
                     <Link
                       to={`/${weddingSlug}/${item.slug}`}
-                      className="flex-[2] flex items-center justify-center gap-2 p-3 bg-[#c94b6a] text-white rounded-2xl text-sm font-bold shadow-lg shadow-pink-100 hover:scale-[1.02] transition-all active:scale-95"
+                      className="flex-[2] flex items-center justify-center gap-2 p-3 bg-[#c94b6a] text-white rounded-xl text-sm font-bold shadow-lg shadow-pink-100 hover:scale-[1.02] transition-all active:scale-95"
                     >
                       <FontAwesomeIcon icon={faEye} />
                       <span>Xem thiệp</span>

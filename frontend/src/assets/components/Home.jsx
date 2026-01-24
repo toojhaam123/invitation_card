@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelopeOpenText } from "@fortawesome/free-solid-svg-icons";
 import LoadingState from "./LoadingState";
 import useAuth from "../hooks/me";
 import {
@@ -11,6 +10,7 @@ import {
   faCalendarDays,
   faEdit,
   faTrashAlt,
+  faEnvelopeOpenText,
 } from "@fortawesome/free-solid-svg-icons";
 
 const EventDashboard = () => {
@@ -27,6 +27,7 @@ const EventDashboard = () => {
       try {
         const res = await privateApi.get("/events");
         setEvents(res.data.data);
+        console.log("Danh sách sự kiện: ", res.data.data);
       } catch (error) {
         console.error("Lỗi lấy danh sách sự kiện: ", error?.response?.data);
       } finally {
@@ -125,7 +126,7 @@ const EventDashboard = () => {
         {events.map((event) => (
           <div
             key={event.id}
-            className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300"
+            className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 group hover:shadow-xl transition-all duration-300"
           >
             {/* Ảnh cover sự kiện */}
             <div className="relative h-44 overflow-hidden">
@@ -144,16 +145,19 @@ const EventDashboard = () => {
                   {event.groom_name} & {event.bride_name}
                 </h3>
               </div>
+              <span className="absolute top-1 right-1 bg-white/90 backdrop-blur-sm text-[#c94b6a] text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-sm">
+                {event.event_type || "WeddingEvent"}
+              </span>
             </div>
 
             {/* Nội dung tóm tắt */}
             <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex justify-between items-center mb-3">
                 <div className="flex flex-col">
-                  <span className="text-xs text-gray-400 uppercase font-bold tracking-tighter">
+                  <span className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
                     Ngày đại hỷ
                   </span>
-                  <div className="flex items-center text-gray-700 font-semibold gap-2">
+                  <div className="flex items-center text-sm text-gray-700 font-bold gap-1.5 mt-0.5">
                     <FontAwesomeIcon
                       icon={faCalendarDays}
                       className="text-[#c94b6a]"
@@ -167,13 +171,17 @@ const EventDashboard = () => {
                 </div>
 
                 {/* Badge trạng thái */}
-                <span className="px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase rounded-lg border border-green-100">
-                  Active
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-600 text-[10px] font-black uppercase rounded-lg border border-green-100 shadow-sm">
+                  <FontAwesomeIcon
+                    icon={faEnvelopeOpenText}
+                    className="text-[9px]"
+                  />
+                  <span>Có {event.invitations_count} thiệp</span>
                 </span>
               </div>
 
               {/* Nút hành động chính */}
-              <div className="flex items-center gap-2 pt-4 border-t border-gray-100 mt-auto">
+              <div className="flex items-center gap-2 mt-auto">
                 {/* Nút Quản lý khách - Chiếm phần lớn diện tích */}
                 <Link
                   to={`/${event.slug}`}

@@ -15,7 +15,6 @@ import useAuth from "../hooks/me";
 const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
-  console.log("form preview: ", formData);
 
   const { weddingSlug, guestNameSlug } = useParams();
   const [data, setData] = useState(isPreview ? formData : null);
@@ -33,7 +32,7 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
     album: [],
     qr: null,
   });
-  console.log("is preview: ", isPreview);
+
   useEffect(() => {
     if (isPreview) return; // nếu chỉ là xem trước thì ko cần gọi API
 
@@ -67,19 +66,19 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
     const generateUrls = [];
 
     // Xử lý ảnh bìa
-    if (data?.cover_image instanceof File) {
-      const url = URL.createObjectURL(data.cover_image);
+    if (data?.cover_image_file instanceof File) {
+      const url = URL.createObjectURL(data.cover_image_file);
       generateUrls.push(url);
       setPreViewUrls((prev) => ({ ...prev, cover: url }));
     }
 
     // Xử lý album
-    if (data?.album_image) {
+    if (data?.album_image_file) {
       const albums =
-        data?.album_image instanceof FileList
-          ? Array.from(data?.album_image)
-          : Array.isArray(data?.album_image)
-            ? data?.album_image
+        data?.album_image_file instanceof FileList
+          ? Array.from(data?.album_image_file)
+          : Array.isArray(data?.album_image_file)
+            ? data?.album_image_file
             : [];
       if (albums.length > 0) {
         const urls = albums.map((file) => {
@@ -95,8 +94,8 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
     }
 
     // Xử lý qr code
-    if (data.qr_code_bank instanceof File) {
-      const url = URL.createObjectURL(data.qr_code_bank);
+    if (data.qr_code_bank_file instanceof File) {
+      const url = URL.createObjectURL(data.qr_code_bank_file);
       generateUrls.push(url);
       setPreViewUrls((prev) => ({ ...prev, qr: url }));
     }
@@ -108,7 +107,12 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
         console.log("Đã dọn RAM");
       });
     };
-  }, [isPreview, data?.cover_image, data?.album_image, data?.qr_code_bank]);
+  }, [
+    isPreview,
+    data?.cover_image_file,
+    data?.album_image_file,
+    data?.qr_code_bank_file,
+  ]);
 
   const handleOpenInvitation = () => {
     setIsExiting(true);
@@ -176,14 +180,13 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
       alert(e?.response?.data?.message);
     }
   };
-  console.log("data_album: ", data.album_image);
 
   if (loading) return <LoadingState />;
-  // console.log("Data: ", data);
   if (!isPreview) {
     if (!data || !data.wedding_event) return <ErrorState />;
   }
   const wedding = isPreview ? data : data?.wedding_event;
+
   const logsCount = data?.logs_count;
 
   return (
@@ -192,9 +195,10 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
         <button
           type="button"
           onClick={() => setIsPreview(false)}
-          className="fixed right-2 top-4 z-[200] flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-[#c94b6a] border border-pink-100 rounded-full shadow-sm hover:bg-[#c94b6a] hover:text-white transition-all active:scale-95 font-bold text-xs uppercase tracking-tight"
+          className="fixed left-2 md:left-4 top-4 z-[200] flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-[#c94b6a] border border-pink-100 rounded-full shadow-sm hover:bg-[#c94b6a] hover:text-white transition-all active:scale-95 font-bold text-xs uppercase tracking-tight"
         >
           <FontAwesomeIcon icon={faTimes} className="text-xs" />
+          Tắt chế độ xem trước
         </button>
       )}
       {!isOpen ? (
@@ -234,7 +238,8 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                   <FontAwesomeIcon icon={faEnvelopeOpenText} />
                   MỞ THIỆP
                 </button>
-                {token && me?.id == wedding?.user_id && (
+
+                {token && me?.id == wedding?.user_id && !isPreview && (
                   <p className="z-100">Đã xem {logsCount} lần</p>
                 )}
               </div>
@@ -551,8 +556,10 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
 
           {/* Album Ảnh */}
           {(isPreview
-            ? previewUrls.album
-            : wedding.album_image && wedding.album_image
+            ? previewUrls?.album?.length > 0
+              ? previewUrls.album
+              : wedding?.album_image
+            : wedding?.album_image
           )?.length > 0 && (
             <section className="px-4 bg-white">
               <h3 className="text-pink-500 font-bold tracking-[0.2em] uppercase mb-4">
@@ -562,30 +569,35 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
                 className="flex overflow-x-auto gap-1 pb-6 snap-x scrollbar-hide"
                 style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
               >
-                {(isPreview ? previewUrls.album : wedding.album_image).map(
-                  (img, index) => {
-                    const imgSrc = isPreview
-                      ? img
-                      : `http://localhost:8000/storage/weddingevents/albums/${img}`;
-                    return (
-                      <div
-                        key={index}
-                        onClick={() => setSelectedImg(imgSrc)}
-                        className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
-                      >
-                        <img
-                          src={imgSrc}
-                          className="w-full h-full object-cover"
-                          alt={`Wedding ${index}`}
-                          onError={(e) => {
-                            e.target.src =
-                              "../../public/anh-nen-cuoi-hang-tung.jpg";
-                          }}
-                        />
-                      </div>
-                    );
-                  },
-                )}
+                {(isPreview
+                  ? previewUrls.album?.length > 0
+                    ? previewUrls.album
+                    : wedding.album_image
+                  : wedding.album_image
+                ).map((img, index) => {
+                  const isNewUpload =
+                    typeof img === "string" && img.startsWith("blob");
+                  const imgSrc = isNewUpload
+                    ? img
+                    : `http://localhost:8000/storage/weddingevents/albums/${img}`;
+                  return (
+                    <div
+                      key={index}
+                      onClick={() => setSelectedImg(imgSrc)}
+                      className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
+                    >
+                      <img
+                        src={imgSrc}
+                        className="w-full h-full object-cover"
+                        alt={`Wedding ${index}`}
+                        onError={(e) => {
+                          e.target.src =
+                            "../../public/anh-nen-cuoi-hang-tung.jpg";
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
               {/* --- MODAL PHÓNG TO ẢNH --- */}
               {selectedImg && (
@@ -713,7 +725,11 @@ const GuestInvitation = ({ isPreview, setIsPreview, formData }) => {
             {/* QR và liên hệ */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto md:mx-4">
               {/* Thẻ QR Code Ngân hàng */}
-              {wedding.qr_code_bank && (
+              {(isPreview && previewUrls.qr
+                ? previewUrls.qr
+                : isPreview && wedding.qr_code_bank
+                  ? wedding.qr_code_bank
+                  : wedding.qr_code_bank) && (
                 <div className="bg-white w-full p-6 rounded-3xl shadow-sm border border-pink-50 flex flex-col items-center text-center transition-all hover:shadow-md">
                   <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mb-4">
                     <FontAwesomeIcon

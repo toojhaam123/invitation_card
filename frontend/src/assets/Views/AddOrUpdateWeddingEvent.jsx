@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { privateApi } from "../api/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -46,6 +46,7 @@ const AddOrUpdateWeddingEvent = () => {
         try {
           const res = await privateApi.get(`events/${eventId}`);
           const data = res.data.data;
+
           setFormData({
             id: data.id,
             groom_name: data.groom_name || "",
@@ -61,6 +62,9 @@ const AddOrUpdateWeddingEvent = () => {
             address: data.address || "",
             map_iframe: data.map_iframe || "",
             is_published: data.is_published,
+            album_image: data.album_image,
+            cover_image: data.cover_image,
+            qr_code_bank: data.qr_code_bank,
           });
         } catch (error) {
           console.log("Lỗi khi lấy chi tiết sự kiện: ", error?.response?.data);
@@ -122,7 +126,7 @@ const AddOrUpdateWeddingEvent = () => {
             <button
               type="button"
               onClick={() => setIsPreview(true)}
-              className="fixed right-4 top-4 z-50 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-[#c94b6a] border border-pink-100 rounded-full shadow-sm hover:bg-[#c94b6a] hover:text-white transition-all active:scale-95 font-bold text-xs uppercase tracking-tight"
+              className="fixed right-2 md:right-4 top-4 z-50 flex items-center gap-1.5 px-3 py-1.5 bg-white/90 backdrop-blur-sm text-[#c94b6a] border border-pink-100 rounded-full shadow-sm hover:bg-[#c94b6a] hover:text-white transition-all active:scale-95 font-bold text-xs uppercase tracking-tight"
             >
               <FontAwesomeIcon icon={faEye} className="text-[10px]" />
               Xem trước
@@ -567,9 +571,9 @@ const AddOrUpdateWeddingEvent = () => {
           setIsPreview={setIsPreview}
           formData={{
             ...formData,
-            cover_image: coverImage,
-            album_image: albumImages,
-            qr_code_bank: qrCodeBank,
+            cover_image_file: coverImage,
+            album_image_file: albumImages,
+            qr_code_bank_file: qrCodeBank,
           }}
         />
       )}
