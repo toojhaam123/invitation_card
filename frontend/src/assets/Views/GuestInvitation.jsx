@@ -20,11 +20,8 @@ const GuestInvitation = ({
 }) => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
-
   const { weddingSlug, guestNameSlug } = useParams();
-  const [data, setData] = useState(
-    isPreview || isCreatInvitation ? formData : null,
-  );
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(!isPreview);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
@@ -39,7 +36,20 @@ const GuestInvitation = ({
     album: [],
     qr: null,
   });
-  console.log("isCreatInvitation: ", isCreatInvitation);
+
+  useEffect(() => {
+    if (isPreview || isCreatInvitation) {
+      if (formData) {
+        setData(formData);
+      }
+      if (isCreatInvitation) {
+        setIsOpen(true);
+      }
+    }
+  }, [isPreview, isCreatInvitation, formData]);
+
+  // console.log("formData: ", formData);s
+  console.log("data: ", data);
 
   useEffect(() => {
     if (
@@ -108,7 +118,7 @@ const GuestInvitation = ({
     }
 
     // Xử lý qr code
-    if (data.qr_code_bank_file instanceof File) {
+    if (data?.qr_code_bank_file instanceof File) {
       const url = URL.createObjectURL(data.qr_code_bank_file);
       generateUrls.push(url);
       setPreViewUrls((prev) => ({ ...prev, qr: url }));
@@ -196,10 +206,10 @@ const GuestInvitation = ({
   };
 
   if (loading) return <LoadingState />;
-  // if (!isPreview || !isCreatInvitation) {
-  //   if (!data || !data.wedding_event) return <ErrorState />;
-  // }
-  const wedding = isPreview ? data : data?.wedding_event;
+  if (!isPreview && !isCreatInvitation) {
+    if (!data || !data.wedding_event) return <ErrorState />;
+  }
+  const wedding = isPreview || isCreatInvitation ? data : data?.wedding_event;
 
   const logsCount = data?.logs_count;
 
@@ -217,53 +227,55 @@ const GuestInvitation = ({
       )}
       {!isOpen ? (
         /* --- MÀN HÌNH BÌA (COVER PAGE) --- */
-        <div
-          className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#FFF5F7] transition-all duration-[1200ms] ease-in-out ${
-            isExiting
-              ? "[transform:rotateY(-120deg)] [transform-origin:left] opacity-0 pointer-events-none"
-              : "[transform:rotateY(0deg)] opacity-100"
-          }`}
-          style={{ perspective: "2000px" }} // Tạo độ sâu không gian 3D
-        >
-          <div className="relative w-full max-w-2xl h-[100vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
-            <img
-              src={
-                isPreview && previewUrls?.cover
-                  ? previewUrls?.cover
-                  : wedding?.cover_image
-                    ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
-                    : "../../public/anh-nen-cuoi-hang-tung.jpg"
-              }
-              className="absolute inset-0 w-full h-full object-cover"
-              alt="Cover"
-            />
-            <div className="w-full absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col items-center justify-end text-white md:px-32 p-1 pb-8 text-center">
-              <div className="bg-white/10 backdrop-blur-md p-5 rounded-[2.5rem] border border-white/20 w-full animate-[fadeInUp_1s_ease-out]">
-                <p className="uppercase tracking-[0.4em] text-[10px] mb-2 opacity-90 font-sans">
-                  Trân trọng kính mời
-                </p>
-                <h1 className="text-2xl font-bold mb-4 drop-shadow-lg">
-                  {isPreview || isCreatInvitation
-                    ? "Khách mời mẫu"
-                    : data?.guest_name}
-                </h1>
-                <button
-                  onClick={handleOpenInvitation}
-                  className="bg-pink-500 hover:bg-pink-600 text-white w-full py-4 rounded-2xl font-bold shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 tracking-widest"
-                >
-                  <FontAwesomeIcon icon={faEnvelopeOpenText} />
-                  MỞ THIỆP
-                </button>
+        !isCreatInvitation && (
+          <div
+            className={`fixed inset-0 z-[100] flex items-center justify-center bg-[#FFF5F7] transition-all duration-[1200ms] ease-in-out ${
+              isExiting
+                ? "[transform:rotateY(-120deg)] [transform-origin:left] opacity-0 pointer-events-none"
+                : "[transform:rotateY(0deg)] opacity-100"
+            }`}
+            style={{ perspective: "2000px" }} // Tạo độ sâu không gian 3D
+          >
+            <div className="relative w-full max-w-2xl h-[100vh] rounded-[3rem] overflow-hidden shadow-2xl border-[12px] border-pink-50 md:mx-4">
+              <img
+                src={
+                  isPreview && previewUrls?.cover
+                    ? previewUrls?.cover
+                    : wedding?.cover_image
+                      ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
+                      : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                }
+                className="absolute inset-0 w-full h-full object-cover"
+                alt="Cover"
+              />
+              <div className="w-full absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col items-center justify-end text-white md:px-32 p-1 pb-8 text-center">
+                <div className="bg-white/10 backdrop-blur-md p-5 rounded-[2.5rem] border border-white/20 w-full animate-[fadeInUp_1s_ease-out]">
+                  <p className="uppercase tracking-[0.4em] text-[10px] mb-2 opacity-90 font-sans">
+                    Trân trọng kính mời
+                  </p>
+                  <h1 className="text-2xl font-bold mb-4 drop-shadow-lg">
+                    {isPreview || isCreatInvitation
+                      ? "Khách mời mẫu"
+                      : data?.guest_name}
+                  </h1>
+                  <button
+                    onClick={handleOpenInvitation}
+                    className="bg-pink-500 hover:bg-pink-600 text-white w-full py-4 rounded-2xl font-bold shadow-xl transition-all active:scale-95 flex items-center justify-center gap-3 tracking-widest"
+                  >
+                    <FontAwesomeIcon icon={faEnvelopeOpenText} />
+                    MỞ THIỆP
+                  </button>
 
-                {token &&
-                  me?.id == wedding?.user_id &&
-                  (!isPreview || isCreatInvitation) && (
-                    <p className="z-100">Đã xem {logsCount} lần</p>
-                  )}
+                  {token &&
+                    me?.id == wedding?.user_id &&
+                    (!isPreview || isCreatInvitation) && (
+                      <p className="z-100">Đã xem {logsCount} lần</p>
+                    )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )
       ) : (
         /* --- TRANG NỘI DUNG CHÍNH --- */
         <main className="relative z-10 max-w-2xl mx-auto bg-white md:rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] md:rounded-t-[3rem] md:my-4">
@@ -471,12 +483,14 @@ const GuestInvitation = ({
               </p>
 
               {/* Map Iframe */}
-              {wedding?.map_iframe && (
-                <div
-                  className="w-full h-64 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white mb-3"
-                  dangerouslySetInnerHTML={{ __html: wedding?.map_iframe }}
-                />
-              )}
+              {isPreview && wedding?.map_iframe
+                ? wedding?.map_iframe
+                : wedding.map_iframe && (
+                    <div
+                      className="w-full h-64 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white mb-3"
+                      dangerouslySetInnerHTML={{ __html: wedding?.map_iframe }}
+                    />
+                  )}
             </div>
           </section>
 

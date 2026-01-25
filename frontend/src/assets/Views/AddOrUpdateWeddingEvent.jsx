@@ -42,6 +42,7 @@ const AddOrUpdateWeddingEvent = () => {
 
   useEffect(() => {
     if (isEditMode) {
+      setLoading(true);
       const fetchDataEvent = async () => {
         try {
           const res = await privateApi.get(`events/${weddingSlug}`);
@@ -70,6 +71,8 @@ const AddOrUpdateWeddingEvent = () => {
           console.log("Lỗi khi lấy chi tiết sự kiện: ", error?.response?.data);
           alert("Không tìm thấy sự kiện cần sửa!");
           // navigate("/");
+        } finally {
+          setLoading(false);
         }
       };
       fetchDataEvent();
@@ -87,6 +90,11 @@ const AddOrUpdateWeddingEvent = () => {
     const data = new FormData();
 
     Object.keys(formData).forEach((key) => {
+      // Kiểm tra các trường hợp sử dụng boolean
+      if (key === "album_image") {
+        console.log(formData.album_image);
+      }
+
       const value =
         typeof formData[key] === "boolean"
           ? formData[key]
@@ -96,12 +104,18 @@ const AddOrUpdateWeddingEvent = () => {
       if (value !== "" && value !== null) data.append(key, value);
     });
 
+    // thêm các ảnh vào formData
     if (coverImage) data.append("cover_image", coverImage);
-    if (albumImages.length > 0) {
-      Array.from(albumImages).forEach((file) =>
-        data.append("album_image[]", file),
-      );
-    }
+
+    // album
+    data.delete("album_image");
+    if (formData.album_image)
+      if (albumImages.length > 0) {
+        Array.from(albumImages).forEach((file) =>
+          data.append("album_image", file),
+        );
+      }
+
     if (qrCodeBank) data.append("qr_code_bank", qrCodeBank);
 
     try {

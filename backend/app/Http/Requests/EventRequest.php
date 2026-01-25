@@ -24,6 +24,8 @@ class EventRequest extends FormRequest
      */
     public function rules(): array
     {
+        $isCoverFile = $this->hasFile('cover_image');
+        $isQRFile = $this->hasFile('qr_code_bank');
         return [
             // Bắt buộc, không được trùng trong bảng invitations
             'slug' => 'string|unique:wedding_events,slug|max:255',
@@ -51,11 +53,9 @@ class EventRequest extends FormRequest
             'map_iframe'     => 'nullable|string',
 
             // Kiểm tra file ảnh (nếu bạn gửi file trực tiếp) hoặc string (nếu gửi link)
-            'cover_image'    => 'nullable|image|mimes:jpg,png,gift|max:5120',
+            'cover_image'    => $isCoverFile ? 'nullable|image|mimes:jpg,png,gif|max:5120' : 'nullable|string',
             'album_image'    => 'nullable|array', // Vì mình cast nó là array trong Model
-
-            'music_url'      => 'nullable|url',
-            'qr_code_bank'   => 'nullable|image|mimes:jpg,png,gift|max:5120',
+            'qr_code_bank'   => $isQRFile ? 'nullable|image|mimes:jpg,png,gift|max:5120' : 'nullable|string',
         ];
     }
 

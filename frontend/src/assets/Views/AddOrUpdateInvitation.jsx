@@ -141,10 +141,11 @@ const AddOrUpdateInvitation = () => {
         </h3>
       </div>
 
-      <div className="min-h-screen flex gap-1">
+      <div className="flex flex-col lg:flex-row gap-2  justify-center">
+        {/* FORM: Chiếm 100% mobile, và khoảng 1/3 hoặc cố định chiều rộng trên Desktop */}
         <form
           onSubmit={handleSubmit}
-          className="space-y-4 max-w-xl mx-auto bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
+          className="w-full lg:w-[400px] lg:sticky lg:top-4 space-y-4 bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
         >
           {/* GUEST NAME */}
           <div>
@@ -170,18 +171,19 @@ const AddOrUpdateInvitation = () => {
             ) : (
               <>
                 <FontAwesomeIcon icon={faPaperPlane} />
-                <span>
-                  {" "}
-                  {isEditMode ? "Chỉnh Thiệp Mời" : "Thêm Thiệp Mời"}
-                </span>
+                <span>{isEditMode ? "Chỉnh Thiệp Mời" : "Thêm Thiệp Mời"}</span>
               </>
             )}
           </button>
         </form>
-        <GuestInvitation
-          formData={formData}
-          isCreatInvitation={isCreatInvitation}
-        ></GuestInvitation>
+
+        {/* PREVIEW: Chiếm phần còn lại của màn hình */}
+        <div className="max-w-2xl lg:flex-1">
+          <GuestInvitation
+            formData={formData}
+            isCreatInvitation={isCreatInvitation}
+          />
+        </div>
       </div>
     </div>
   );
