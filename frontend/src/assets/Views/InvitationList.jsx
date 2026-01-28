@@ -24,6 +24,7 @@ const InvitationList = () => {
   const [loading, setLoading] = useState(true);
   const { weddingSlug } = useParams();
   const { me } = useAuth();
+  const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchInvitations = async () => {
@@ -115,8 +116,8 @@ const InvitationList = () => {
                   <img
                     src={
                       item?.wedding_event?.cover_image
-                        ? `http://localhost:8000/storage/weddingevents/covers/${item?.wedding_event?.cover_image}`
-                        : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                        ? `${IMAGE_BASE_URL}/storage/app/public/weddingevents/covers/${item?.wedding_event?.cover_image}`
+                        : "/image_default.webp"
                     }
                     alt="Cover"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

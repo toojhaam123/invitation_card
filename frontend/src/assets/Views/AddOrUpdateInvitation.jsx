@@ -145,7 +145,7 @@ const AddOrUpdateInvitation = () => {
         {/* FORM: Chiếm 100% mobile, và khoảng 1/3 hoặc cố định chiều rộng trên Desktop */}
         <form
           onSubmit={handleSubmit}
-          className="w-full lg:w-[400px] lg:sticky lg:top-4 space-y-4 bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
+          className="w-full lg:w-[400px] lg:sticky lg:top-4 space-y-4 max-h-[200px] bg-white/80 backdrop-blur-md shadow-2xl rounded-[2rem] overflow-hidden border border-white p-5"
         >
           {/* GUEST NAME */}
           <div>
@@ -176,12 +176,13 @@ const AddOrUpdateInvitation = () => {
             )}
           </button>
         </form>
-
         {/* PREVIEW: Chiếm phần còn lại của màn hình */}
         <div className="max-w-2xl lg:flex-1">
           <GuestInvitation
+            guestName={guestName}
             formData={formData}
             isCreatInvitation={isCreatInvitation}
+            isEditModeInvitation={isEditMode}
           />
         </div>
       </div>

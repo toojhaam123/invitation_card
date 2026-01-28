@@ -13,10 +13,12 @@ import {
 import useAuth from "../hooks/me";
 
 const GuestInvitation = ({
+  guestName,
   isPreview,
   setIsPreview,
   formData,
   isCreatInvitation,
+  isEditModeInvitation,
 }) => {
   const { me } = useAuth();
   const token = localStorage.getItem("token");
@@ -37,19 +39,18 @@ const GuestInvitation = ({
     qr: null,
   });
 
+  const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
-    if (isPreview || isCreatInvitation) {
+    if (isPreview || isCreatInvitation || isEditModeInvitation) {
       if (formData) {
         setData(formData);
       }
-      if (isCreatInvitation) {
+      if (isCreatInvitation || isEditModeInvitation) {
         setIsOpen(true);
       }
     }
-  }, [isPreview, isCreatInvitation, formData]);
-
-  // console.log("formData: ", formData);s
-  console.log("data: ", data);
+  }, [isPreview, isCreatInvitation, formData, isEditModeInvitation]);
 
   useEffect(() => {
     if (
@@ -128,7 +129,6 @@ const GuestInvitation = ({
     return () => {
       generateUrls.forEach((url) => {
         URL.revokeObjectURL(url);
-        console.log("Đã dọn RAM");
       });
     };
   }, [
@@ -242,8 +242,8 @@ const GuestInvitation = ({
                   isPreview && previewUrls?.cover
                     ? previewUrls?.cover
                     : wedding?.cover_image
-                      ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
-                      : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                      ? `${IMAGE_BASE_URL}/storage/app/public/weddingevents/covers/${wedding?.cover_image}`
+                      : "/image_default.webp"
                 }
                 className="absolute inset-0 w-full h-full object-cover"
                 alt="Cover"
@@ -253,6 +253,7 @@ const GuestInvitation = ({
                   <p className="uppercase tracking-[0.4em] text-[10px] mb-2 opacity-90 font-sans">
                     Trân trọng kính mời
                   </p>
+                  {/* Phần bìa */}
                   <h1 className="text-2xl font-bold mb-4 drop-shadow-lg">
                     {isPreview || isCreatInvitation
                       ? "Khách mời mẫu"
@@ -268,7 +269,9 @@ const GuestInvitation = ({
 
                   {token &&
                     me?.id == wedding?.user_id &&
-                    (!isPreview || isCreatInvitation) && (
+                    (!isPreview ||
+                      !isCreatInvitation ||
+                      !isEditModeInvitation) && (
                       <p className="z-100">Đã xem {logsCount} lần</p>
                     )}
                 </div>
@@ -278,7 +281,9 @@ const GuestInvitation = ({
         )
       ) : (
         /* --- TRANG NỘI DUNG CHÍNH --- */
-        <main className="relative z-10 max-w-2xl mx-auto bg-white md:rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] md:rounded-t-[3rem] md:my-4">
+        <main
+          className={`relative z-10 max-w-2xl mx-auto bg-white md:rounded-[3rem] shadow-2xl min-h-screen animate-[fadeIn_1.5s_ease-in] md:rounded-t-[3rem] ${isCreatInvitation ? "md:my-0" : "md:my-4"}`}
+        >
           {attendanceStatus && (
             <div className="fixed top-4 md:top-11 right-0 md:right-[29%] z-50 pointer-events-none animate-[stamp_0.5s_ease-out_forwards]">
               <div
@@ -302,7 +307,7 @@ const GuestInvitation = ({
           )}
           {/* Bông nơ trang trí  */}
           <div className="absolute z-[100] left md:top-8 md:left-8 transform w-20 -scale-x-100">
-            <img src="../public/no.png" alt="" />
+            <img src="/no.png" alt="Trang trí viền" />
           </div>
           {/* Header  */}
           <section className="py-5 px-1 text-center relative overflow-hidden">
@@ -310,9 +315,13 @@ const GuestInvitation = ({
               Trân trọng kính mời
             </h3>
             <h1 className="text-3xl font-bold text-gray-800 mb-3">
-              {isPreview || isCreatInvitation
-                ? "Khách mời mẫu"
-                : data?.guest_name}
+              {isPreview
+                ? "Khách Mời Mẫu"
+                : isCreatInvitation || isEditModeInvitation
+                  ? guestName
+                    ? guestName
+                    : "....................."
+                  : data?.guest_name}
             </h1>
             <p className="text-gray-600 text-xl mb-4 italic px-4">
               Tới dự bữa cơm thân mật mừng lễ thành hôn của hai vợ chồng
@@ -327,8 +336,8 @@ const GuestInvitation = ({
                     isPreview && previewUrls?.cover
                       ? previewUrls?.cover
                       : wedding?.cover_image
-                        ? `http://localhost:8000/storage/weddingevents/covers/${wedding?.cover_image}`
-                        : "../../public/anh-nen-cuoi-hang-tung.jpg"
+                        ? `${IMAGE_BASE_URL}/storage/app/public/weddingevents/covers/${wedding?.cover_image}`
+                        : "/image_default.webp"
                   }
                   className="w-full h-full object-cover opacity-60"
                   alt="Background"
@@ -355,10 +364,10 @@ const GuestInvitation = ({
               </div>
             </div>
             <div className="absolute z-10  transform w-20 md:w-28 md:bottom-0 -bottom-2 left-1 -rotate-[25deg] ">
-              <img src="../public/rose3.png" alt="" />
+              <img src="/rose3.png" alt="" />
             </div>
             <div className="absolute z-10  transform w-20 md:w-28 md:bottom-0 -bottom-2 right-0 -scale-x-100 right-0 me-1 rotate-[25deg] ">
-              <img src="../public/rose3.png" alt="" />
+              <img src="/rose3.png" alt="" />
             </div>
           </section>
 
@@ -483,14 +492,19 @@ const GuestInvitation = ({
               </p>
 
               {/* Map Iframe */}
-              {isPreview && wedding?.map_iframe
+              {(isPreview && wedding?.map_iframe
                 ? wedding?.map_iframe
-                : wedding.map_iframe && (
-                    <div
-                      className="w-full h-64 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white mb-3"
-                      dangerouslySetInnerHTML={{ __html: wedding?.map_iframe }}
-                    />
-                  )}
+                : wedding.map_iframe) && (
+                <div
+                  className="w-full h-64 rounded-[2rem] overflow-hidden shadow-lg border-4 border-white mb-3"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      isPreview && wedding?.map_iframe
+                        ? wedding?.map_iframe
+                        : wedding?.map_iframe,
+                  }}
+                />
+              )}
             </div>
           </section>
 
@@ -533,7 +547,7 @@ const GuestInvitation = ({
                 </p>
               </div>
             </div>
-            <p className="text-3xl font-title text-pink-600 italic px-6 leading-relaxed mt-6 animate-bounce">
+            <p className="text-3xl font-title text-pink-600 italic px-6 leading-relaxed mt-6">
               Sự hiện diện của quý khách là niềm hạnh phúc đối với chúng tôi!
             </p>
           </section>
@@ -554,7 +568,7 @@ const GuestInvitation = ({
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
               {/* Nút Sẽ tham gia */}
               <button
-                disabled={isPreview}
+                disabled={isPreview || isCreatInvitation}
                 onClick={() => {
                   handleAttendance(1);
                   alert("Cảm ơn quý khác đã xác nhận tham dự! ❤️");
@@ -571,7 +585,7 @@ const GuestInvitation = ({
 
               {/* Nút Không tham gia */}
               <button
-                disabled={isPreview}
+                disabled={isPreview || isCreatInvitation}
                 onClick={() => {
                   handleAttendance(0);
                   alert(
@@ -585,9 +599,6 @@ const GuestInvitation = ({
             </div>
           </section>
 
-          {/* Đường viền ngang cách */}
-          <div className="h-[1px] bg-pink-200 w-1/2 mx-auto mb-5"></div>
-
           {/* Album Ảnh */}
           {(isPreview
             ? previewUrls?.album?.length > 0
@@ -595,63 +606,66 @@ const GuestInvitation = ({
               : wedding?.album_image
             : wedding?.album_image
           )?.length > 0 && (
-            <section className="px-4 bg-white">
-              <h3 className="text-pink-500 font-bold tracking-[0.2em] uppercase mb-4">
-                Album Ảnh Cưới
-              </h3>
-              <div
-                className="flex overflow-x-auto gap-1 pb-6 snap-x scrollbar-hide"
-                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-              >
-                {(isPreview
-                  ? previewUrls.album?.length > 0
-                    ? previewUrls.album
-                    : wedding.album_image
-                  : wedding.album_image
-                ).map((img, index) => {
-                  const isNewUpload =
-                    typeof img === "string" && img.startsWith("blob");
-                  const imgSrc = isNewUpload
-                    ? img
-                    : `http://localhost:8000/storage/weddingevents/albums/${img}`;
-                  return (
-                    <div
-                      key={index}
-                      onClick={() => setSelectedImg(imgSrc)}
-                      className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
-                    >
-                      <img
-                        src={imgSrc}
-                        className="w-full h-full object-cover"
-                        alt={`Wedding ${index}`}
-                        onError={(e) => {
-                          e.target.src =
-                            "../../public/anh-nen-cuoi-hang-tung.jpg";
-                        }}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-              {/* --- MODAL PHÓNG TO ẢNH --- */}
-              {selectedImg && (
+            <>
+              {/* Đường viền ngang cách */}
+              <div className="h-[1px] bg-pink-200 w-1/2 mx-auto mb-5"></div>
+              <section className="px-4 bg-white">
+                <h3 className="text-pink-500 font-bold tracking-[0.2em] uppercase mb-4">
+                  Album Ảnh Cưới
+                </h3>
                 <div
-                  className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 animate-[fadeIn_0.3s_ease-out]"
-                  onClick={() => setSelectedImg(null)} // Bấm ra ngoài để đóng
+                  className="flex overflow-x-auto gap-1 pb-6 snap-x scrollbar-hide"
+                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
-                  <button className="absolute top-4 right-5 text-white/80 hover:text-white text-4xl px-3 py-1 rounded-full bg-transparent hover:bg-white/10 transition-all duration-300">
-                    &times;
-                  </button>
-
-                  <img
-                    src={selectedImg}
-                    className="max-w-full max-h-[90vh] rounded-lg shadow-2xl transition-transform duration-300 md:max-w-4xl"
-                    alt="Full size"
-                    onClick={(e) => e.stopPropagation()} // Ngăn đóng khi bấm vào ảnh
-                  />
+                  {(isPreview
+                    ? previewUrls.album?.length > 0
+                      ? previewUrls.album
+                      : wedding.album_image
+                    : wedding.album_image
+                  ).map((img, index) => {
+                    const isNewUpload =
+                      typeof img === "string" && img.startsWith("blob");
+                    const imgSrc = isNewUpload
+                      ? img
+                      : `${IMAGE_BASE_URL}/storage/app/public/weddingevents/albums/${img}`;
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedImg(imgSrc)}
+                        className="flex-shrink-0 w-64 aspect-[3/4] overflow-hidden rounded-[2rem] shadow-lg border-4 border-pink-50 snap-center cursor-pointer"
+                      >
+                        <img
+                          src={imgSrc}
+                          className="w-full h-full object-cover"
+                          alt={`Wedding ${index}`}
+                          onError={(e) => {
+                            e.target.src = "/image_default.webp";
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
-              )}
-            </section>
+                {/* --- MODAL PHÓNG TO ẢNH --- */}
+                {selectedImg && (
+                  <div
+                    className="fixed inset-0 z-[200] bg-black/90 flex items-center justify-center p-4 animate-[fadeIn_0.3s_ease-out]"
+                    onClick={() => setSelectedImg(null)} // Bấm ra ngoài để đóng
+                  >
+                    <button className="absolute top-4 right-5 text-white/80 hover:text-white text-4xl px-3 py-1 rounded-full bg-transparent hover:bg-white/10 transition-all duration-300">
+                      &times;
+                    </button>
+
+                    <img
+                      src={selectedImg}
+                      className="max-w-full max-h-[90vh] rounded-lg shadow-2xl transition-transform duration-300 md:max-w-4xl"
+                      alt="Full size"
+                      onClick={(e) => e.stopPropagation()} // Ngăn đóng khi bấm vào ảnh
+                    />
+                  </div>
+                )}
+              </section>
+            </>
           )}
 
           {/* Đường viền ngang cách */}
@@ -686,7 +700,7 @@ const GuestInvitation = ({
                   </span>
                 )}
                 <textarea
-                  disabled={isPreview}
+                  disabled={isPreview || isCreatInvitation}
                   placeholder={`Mời ${name} nhập lời chúc tại đây...`}
                   name="content"
                   value={content}
@@ -698,7 +712,7 @@ const GuestInvitation = ({
                 ></textarea>
 
                 <button
-                  disabled={isPreview}
+                  disabled={isPreview || isCreatInvitation}
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-pink-200 transition-all active:scale-95"
                 >
@@ -785,7 +799,7 @@ const GuestInvitation = ({
                       src={
                         isPreview && previewUrls?.qr
                           ? previewUrls.qr
-                          : `http://localhost:8000/storage/weddingevents/qrcode/${wedding?.qr_code_bank}`
+                          : `${IMAGE_BASE_URL}/storage/app/public/weddingevents/qrcode/${wedding?.qr_code_bank}`
                       }
                       alt="QR Code"
                       className="w-40 h-40 object-cover rounded-xl border-4 border-gray-50 shadow-inner group-hover:scale-105 transition-transform duration-300"
@@ -841,12 +855,12 @@ const GuestInvitation = ({
               {wedding?.bride_name}
             </p>
             <img
-              src="../../public/rose4.png"
+              src="/rose4.png"
               className="absolute -left-0 -bottom-5 md:-left-0 md:-bottom-7 -translate-y-1/2 w-20 md:w-28 rotate-[25deg]"
               alt=""
             />
             <img
-              src="../../public/rose4.png"
+              src="/rose4.png"
               className="absolute md:-right-0 -bottom-5 right-0 md:-bottom-7 -translate-y-1/2 w-20 md:w-28 -rotate-[25deg] -scale-x-100"
               alt=""
             />

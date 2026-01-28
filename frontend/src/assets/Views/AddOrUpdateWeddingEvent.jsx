@@ -90,11 +90,8 @@ const AddOrUpdateWeddingEvent = () => {
     const data = new FormData();
 
     Object.keys(formData).forEach((key) => {
+      if (key === "album_image") return;
       // Kiểm tra các trường hợp sử dụng boolean
-      if (key === "album_image") {
-        console.log(formData.album_image);
-      }
-
       const value =
         typeof formData[key] === "boolean"
           ? formData[key]
@@ -107,14 +104,15 @@ const AddOrUpdateWeddingEvent = () => {
     // thêm các ảnh vào formData
     if (coverImage) data.append("cover_image", coverImage);
 
-    // album
-    data.delete("album_image");
-    if (formData.album_image)
-      if (albumImages.length > 0) {
-        Array.from(albumImages).forEach((file) =>
-          data.append("album_image", file),
-        );
-      }
+    // album_image
+    if (albumImages && albumImages.length > 0) {
+      Array.from(albumImages).forEach((file) => {
+        // Chỉ append nếu nó là đối tượng File (người dùng vừa chọn mới)
+        if (file instanceof File) {
+          data.append("album_image[]", file);
+        }
+      });
+    }
 
     if (qrCodeBank) data.append("qr_code_bank", qrCodeBank);
 

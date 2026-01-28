@@ -20,6 +20,7 @@ const EventDashboard = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     setLoading(true);
@@ -133,8 +134,8 @@ const EventDashboard = () => {
               <img
                 src={
                   event.cover_image
-                    ? `http://localhost:8000/storage/weddingevents/covers/${event.cover_image}`
-                    : "public/anh-nen-cuoi-hang-tung.jpg"
+                    ? `${IMAGE_BASE_URL}/storage/app/public/weddingevents/covers/${event.cover_image}`
+                    : "/image_default.webp"
                 }
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 alt="Wedding"
@@ -146,7 +147,7 @@ const EventDashboard = () => {
                 </h3>
               </div>
               <span className="absolute top-1 right-1 bg-white/90 backdrop-blur-sm text-[#c94b6a] text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-sm">
-                {event.event_type || "WeddingEvent"}
+                {event.event_type || "Wedding Event"}
               </span>
             </div>
 
@@ -209,7 +210,7 @@ const EventDashboard = () => {
                     onClick={() => {
                       if (
                         window.confirm(
-                          "Tùng có chắc chắn muốn xóa sự kiện này?",
+                          "Lưu ý: Mọi dữ liệu về sự kiện và danh sách thiệp mời sẽ biến mất vĩnh viễn sau khi xóa!",
                         )
                       ) {
                         handleDelete(event.id);
