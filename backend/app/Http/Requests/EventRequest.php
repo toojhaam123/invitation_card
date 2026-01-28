@@ -54,8 +54,31 @@ class EventRequest extends FormRequest
 
             // Kiểm tra file ảnh (nếu bạn gửi file trực tiếp) hoặc string (nếu gửi link)
             'cover_image'    => $isCoverFile ? 'nullable|image|mimes:jpg,png,gif|max:5120' : 'nullable|string',
-            'album_image'    => 'nullable|array', // Vì mình cast nó là array trong Model
             'qr_code_bank'   => $isQRFile ? 'nullable|image|mimes:jpg,png,gift|max:5120' : 'nullable|string',
+            'album_image'   => 'nullable|array',
+            'album_image.*' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    // 1. Nếu là chuỗi (tên file cũ), cho qua luôn
+                    if (is_string($value)) {
+                        return;
+                    }
+
+                    // 2. Nếu là File, mới bắt đầu kiểm tra định dạng
+                    if ($value instanceof \Illuminate\Http\UploadedFile) {
+                        $extension = strtolower($value->getClientOriginalExtension());
+                        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+                            $fail('Ảnh trong album phải có định dạng: jpg, jpeg, png, gif.');
+                        }
+                        if ($value->getSize() > 5120 * 1024) {
+                            $fail('Ảnh không được vượt quá 5MB.');
+                        }
+                    } else {
+                        // 3. Nếu không phải string cũng không phải file (ví dụ null hoặc object lạ)
+                        $fail('Dữ liệu ảnh không hợp lệ.');
+                    }
+                },
+            ],
         ];
     }
 

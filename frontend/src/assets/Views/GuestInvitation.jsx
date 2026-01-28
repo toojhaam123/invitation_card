@@ -548,7 +548,8 @@ const GuestInvitation = ({
               </div>
             </div>
             <p className="text-3xl font-title text-pink-600 italic px-6 leading-relaxed mt-6">
-              Sự hiện diện của quý khách là niềm hạnh phúc đối với chúng tôi!
+              Sự hiện diện của Quý khách là niềm hạnh phúc đối với gia đình
+              chúng tôi!
             </p>
           </section>
 
@@ -562,7 +563,7 @@ const GuestInvitation = ({
             </h3>
             <p className="text-gray-600 text-xl mb-6 italic px-4">
               Để việc đón tiếp được chu đáo, rất mong nhận được sự phản hồi từ
-              quý khách!
+              Quý khách!
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4">
@@ -686,8 +687,8 @@ const GuestInvitation = ({
                 Gửi lời chúc
               </h3>
               <p className="text-gray-600 text-xl mb-6 italic px-4">
-                Những lời chúc tốt đẹp từ quý khách là món quà vô giá đối với
-                chúng mình
+                Mọi lời chúc và tình cảm từ Quý khách chính là món quà quý giá
+                nhất đối với chúng tôi.
               </p>
 
               <form
@@ -769,7 +770,7 @@ const GuestInvitation = ({
             </div>
           </section>
 
-          <footer className="relative overflow-hidden pt-2 text-center bg-gray-50 rounded-b-[3rem] px-4 md:pb-10 pb-16">
+          <footer className="relative overflow-hidden pt-2 text-center bg-gray-50 rounded-b-[3rem] px-4 pb-6">
             {/* QR và liên hệ */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto md:mx-4">
               {/* Thẻ QR Code Ngân hàng */}
@@ -787,9 +788,9 @@ const GuestInvitation = ({
                   </div>
                   <div className="text-center mb-6">
                     <p className="text-pink-600 font-medium italic text-sm md:text-base leading-relaxed">
-                      "Mọi sự thương yêu xin vui lòng ghi rõ nội dung{" "}
-                      <br className="hidden sm:block" />
-                      để chúng mình lưu giữ kỷ niệm ạ!"
+                      "Mọi sự yêu thương được gửi đến, Quý khách vui lòng để lại
+                      tên để chúng tôi có cơ hội gửi lời cảm ơn chân thành
+                      nhất!"
                     </p>
                     <div className="w-10 h-[1px] bg-pink-200 mx-auto mt-3"></div>
                   </div>
@@ -844,16 +845,31 @@ const GuestInvitation = ({
             </div>
 
             {/* Biểu tượng nhỏ xinh ở trên */}
-            <div className="text-pink-200 text-xs mb-4 mt-8 tracking-[0.3em] flex items-center justify-center gap-2">
-              <div className="h-[1px] w-8 bg-pink-100"></div>
+            <div className="text-pink-200 text-xs mb-4 mt-6 tracking-[0.1em] flex items-center justify-center gap-2">
+              <span>
+                <p className="text-gray-400 text-[10px] tracking-[0.1em] uppercase font-sans">
+                  {wedding?.groom_name}
+                </p>
+              </span>
+              <div className="h-[1px] w-4 bg-pink-100"></div>
               <FontAwesomeIcon icon={faHeart} />
-              <div className="h-[1px] w-8 bg-pink-100"></div>
+              <div className="h-[1px] w-4 bg-pink-100"></div>
+              <span>
+                <p className="text-gray-400 text-[10px] tracking-[0.1em] uppercase font-sans">
+                  {wedding?.bride_name}
+                </p>
+              </span>
             </div>
-            <p className="text-gray-400 text-[10px] tracking-[0.4em] uppercase font-sans">
-              {wedding?.groom_name}{" "}
-              <span className="text-pink-300 mx-1">❤</span>{" "}
-              {wedding?.bride_name}
-            </p>
+            <div className="text-center px-4 opacity-80">
+              <p className="text-xs md:text-sm text-gray-500 italic leading-relaxed md:px-24">
+                <strong className="text-black">Lưu ý nhỏ: </strong>
+                Trang web được phát triển bởi chính Tùng nên có thể tồn tại một
+                vài sai sót, rất mong nhận được sự thông cảm của Quý khách!
+              </p>
+              <p className="text-gray-600 text-sm font-semibold mt-2 tracking-widest uppercase">
+                — Hạng Tùng —
+              </p>
+            </div>
             <img
               src="/rose4.png"
               className="absolute -left-0 -bottom-5 md:-left-0 md:-bottom-7 -translate-y-1/2 w-20 md:w-28 rotate-[25deg]"
