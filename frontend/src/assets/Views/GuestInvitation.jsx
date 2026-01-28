@@ -25,6 +25,7 @@ const GuestInvitation = ({
   const { weddingSlug, guestNameSlug } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(!isPreview);
+  const [isSendWish, setIsSendWish] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [selectedImg, setSelectedImg] = useState(null);
@@ -184,6 +185,7 @@ const GuestInvitation = ({
     }
 
     try {
+      setIsSendWish(true);
       const res = await publicApi.post(
         `wedding/${weddingSlug}/${guestNameSlug}/guestbook`,
         {
@@ -202,6 +204,8 @@ const GuestInvitation = ({
     } catch (e) {
       setError(e?.response?.data?.message);
       alert(e?.response?.data?.message);
+    } finally {
+      setIsSendWish(false);
     }
   };
 
@@ -713,11 +717,11 @@ const GuestInvitation = ({
                 ></textarea>
 
                 <button
-                  disabled={isPreview || isCreatInvitation}
+                  disabled={isPreview || isCreatInvitation || isSendWish}
                   type="submit"
                   className="w-full py-4 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold shadow-lg hover:shadow-pink-200 transition-all active:scale-95"
                 >
-                  GỬI LỜI CHÚC
+                  {isSendWish ? "ĐANG GỬI..." : " GỬI LỜI CHÚC"}
                 </button>
               </form>
             </div>
