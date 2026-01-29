@@ -25,6 +25,7 @@ const InvitationList = () => {
   const { weddingSlug } = useParams();
   const { me } = useAuth();
   const IMAGE_BASE_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchInvitations = async () => {
@@ -80,7 +81,7 @@ const InvitationList = () => {
 
         {/* Nút Tạo thiệp mới - shrink-0 để không bị ép co lại */}
         <Link
-          to={`/${weddingSlug}/create-invitation`}
+          to={token ? `/${weddingSlug}/create-invitation` : "/login"}
           className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] group hover:to-[#a83a55] text-white hover:text-white px-4 md:px-6 py-2.5 rounded-full 
                     flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
                     active:scale-95 whitespace-nowrap shrink-0"
@@ -260,7 +261,7 @@ const InvitationList = () => {
           <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-200">
             <p className="text-gray-400 mb-4">Bạn chưa có thiệp mời nào.</p>
             <Link
-              to={`/${weddingSlug}/create-invitation`}
+              to={token ? `/${weddingSlug}/create-invitation` : "/login"}
               className="text-[#c94b6a] font-bold underline"
             >
               Bắt đầu tạo ngay!

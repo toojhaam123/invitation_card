@@ -6,10 +6,12 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const res = await publicApi.post("/login", { email, password });
       // LƯU TOKEN VÀO LOCALSTORAGE
       localStorage.setItem("token", res.data.token);
@@ -19,6 +21,8 @@ const Login = () => {
       window.location.reload(); // Reload để privateApi cập nhật token mới
     } catch (error) {
       alert("Sai tài khoản hoặc mật khẩu!", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,8 +49,11 @@ const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button className="w-full mb-8 bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]">
-            Đăng nhập
+          <button
+            disabled={loading}
+            className="w-full mb-8 bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]"
+          >
+            {loading ? "Đang đăng nhập..." : "Đăng nhập"}
           </button>
         </form>
         <p className="mt-4 text-sm text-blue-500 text-center">

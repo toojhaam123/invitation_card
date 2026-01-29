@@ -10,10 +10,12 @@ const Register = () => {
     password_confirmation: "",
   });
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       await publicApi.post("/register", formData);
       alert("Đăng ký thành công! Hãy đăng nhập.");
       navigate("/login");
@@ -21,6 +23,8 @@ const Register = () => {
       alert(
         "Lỗi đăng ký: " + (error.response?.data?.message || "Vui lòng thử lại"),
       );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,8 +72,11 @@ const Register = () => {
             }
             required
           />
-          <button className="w-full bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]">
-            Đăng ký
+          <button
+            disabled={loading}
+            className="w-full bg-[#c94b6a] text-white p-3 rounded-lg font-bold hover:bg-[#a83a55]"
+          >
+            {loading ? "Đang đăng ký..." : "Đăng ký"}
           </button>
         </form>
         <p className="mt-4 text-sm text-blue-500">

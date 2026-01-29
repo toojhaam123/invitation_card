@@ -104,7 +104,15 @@ const EventDashboard = () => {
 
         {/* Nút Thêm Sự Kiện */}
         <button
-          onClick={() => navigate("/create-event")}
+          onClick={() => {
+            if (token) {
+              navigate("/create-event");
+            } else {
+              alert("Bạn phải đăng nhập trước khi tạo!");
+              navigate("/login");
+              return;
+            }
+          }}
           className="bg-gradient-to-r from-[#c94b6a] to-[#e65c7b] hover:to-[#a83a55] text-white px-4 md:px-6 py-2.5 rounded-full 
                     flex items-center gap-2 transition-all duration-300 shadow-[0_4px_15px_rgba(201,75,106,0.3)] 
                     active:scale-95 shrink-0 whitespace-nowrap text-sm md:text-base"
@@ -230,7 +238,15 @@ const EventDashboard = () => {
         {/* Card trống để thêm mới nếu chưa có sự kiện */}
         {events.length === 0 && (
           <div
-            onClick={() => navigate("/create-event")}
+            onClick={() => {
+              if (token) {
+                navigate("/create-event");
+              } else {
+                alert("Bạn phải đăng nhập trước khi tạo!");
+                navigate("/login");
+                return;
+              }
+            }}
             className="border-4 border-dashed border-gray-100 rounded-[32px] flex flex-col items-center justify-center p-10 cursor-pointer hover:border-pink-200 hover:bg-pink-50/30 transition-all group"
           >
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400 group-hover:bg-[#c94b6a] group-hover:text-white transition-all mb-4">
